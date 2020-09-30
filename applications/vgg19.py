@@ -8,12 +8,11 @@ from applications.base import DLModelBuilder, ConvBlock
 import os
 
 
-# he_normalで初期化するVGG16
-class BaseVGG16(DLModelBuilder):
+class BaseVGG19(DLModelBuilder):
     def __init__(self, kernel_size=3, strides=1, kernel_initializer='he_normal',
                  padding='same', input_shape=(256 * 3, 1), num_classes=6, classifier_activation='softmax'):
         """
-        VGG16
+        VGG19
             kernel_size: kernel_size of Conv1D, default `3`
             strides: strides of Conv1D, default `1`
             kernel_initializer: kernel_initializer of Conv1D and Dense (Fully-connected layers), default `'he_normal'`
@@ -22,10 +21,10 @@ class BaseVGG16(DLModelBuilder):
             num_classes: The number of target classes
             classifier_activation: The activation function to use on the "top" layer, default `"softmax"`
         """
-        super(BaseVGG16, self).__init__(kernel_size=kernel_size, strides=strides, kernel_initializer=kernel_initializer,
+        super(BaseVGG19, self).__init__(kernel_size=kernel_size, strides=strides, kernel_initializer=kernel_initializer,
                                         padding=padding, input_shape=input_shape, num_classes=num_classes)
         self.classifier_activation = classifier_activation
-        self.model_name = "VGG16"
+        self.model_name = "VGG19"
 
     def __call__(self, *args, **kwargs):
         model = self.get_model()
@@ -37,11 +36,11 @@ class BaseVGG16(DLModelBuilder):
                       kernel_initializer=self.kernel_initializer)(inputs)
         x = ConvBlock(2, 32, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(3, 64, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+        x = ConvBlock(4, 64, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(3, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+        x = ConvBlock(4, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(3, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+        x = ConvBlock(4, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
 
         x = Flatten()(x)
@@ -55,10 +54,10 @@ class BaseVGG16(DLModelBuilder):
         return model
 
 
-# VGG16を読み込む関数
-def VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+# VGG19を読み込む関数
+def VGG19(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
     """
-    applications.vgg16.VGG16
+    applications.vgg19.VGG19
         Arguments
             include_top : whether to include the 3 fully-connected layers at the top of the network.
             weights : one of 'None' (he_normal initialization), 'hasc' (pre-training on HASC), or the path to the weights file to be loaded.
@@ -76,15 +75,15 @@ def VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
     if input_shape is None:
         input_shape = (256 * 3, 1)
 
-    vgg16 = BaseVGG16(input_shape=input_shape, num_classes=classes, classifier_activation=classifier_activation)
-    model = vgg16()
+    vgg19 = BaseVGG19(input_shape=input_shape, num_classes=classes, classifier_activation=classifier_activation)
+    model = vgg19()
 
     # topを含むとき
     if include_top:
         if weights is not None:
             # hascで初期化
             if weights in ['hasc', "HASC"]:
-                weights = 'weights/vgg16/vgg16_hasc_weights_{}.hdf5'.format(int(input_shape[0] / 3))
+                weights = 'weights/vgg19/vgg19_hasc_weights_{}.hdf5'.format(int(input_shape[0] / 3))
 
             # hasc or weights fileで初期化
             if os.path.exists(weights):
@@ -99,7 +98,7 @@ def VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
         if weights is not None:
             # hascで初期化
             if weights in ['hasc', "HASC"]:
-                weights = 'weights/vgg16/vgg16_hasc_weights_{}.hdf5'.format(int(input_shape[0] / 3))
+                weights = 'weights/vgg19/vgg19_hasc_weights_{}.hdf5'.format(int(input_shape[0] / 3))
 
             # hasc or weights fileで初期化
             if os.path.exists(weights):
@@ -126,13 +125,10 @@ def VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
 
 
 if __name__ == '__main__':
-    weights = '../weights/vgg16/vgg16_hasc_weights_256.hdf5'
-
-    model = VGG16(include_top=False,
+    model = VGG19(include_top=True,
                   weights=None,
                   input_shape=None,
                   pooling=None,
                   classes=6,
                   classifier_activation='softmax')
-
     print(model.summary())

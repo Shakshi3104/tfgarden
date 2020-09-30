@@ -1,6 +1,8 @@
 # Modules
 TensorFlow CNN Collections for HASC are canned architecture with pre-trained weights.
 
+pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1HMDMDz91laNvsyaTvAMgXzX-pIjDMpwy?usp=sharing).
+
 ## applications.vgg16.VGG16
 ```python
 applications.vgg16.VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax')
