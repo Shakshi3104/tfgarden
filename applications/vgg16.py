@@ -1,11 +1,8 @@
-from tensorflow.keras.layers import Input, Flatten, Dense
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import GlobalAveragePooling1D, GlobalMaxPooling1D
+from tensorflow.keras.layers import Input, Flatten, Dense, Dropout
 from tensorflow.keras.models import Model
 
 from applications.base import DLModelBuilder, ConvBlock
-
-import os
+from applications.vgg import VGG
 
 
 # he_normalで初期化するVGG16
@@ -73,54 +70,8 @@ def VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
             A `tensorflow.keras.Model` instance.
     """
 
-    if input_shape is None:
-        input_shape = (256 * 3, 1)
-
-    vgg16 = BaseVGG16(input_shape=input_shape, num_classes=classes, classifier_activation=classifier_activation)
-    model = vgg16()
-
-    # topを含むとき
-    if include_top:
-        if weights is not None:
-            # hascで初期化
-            if weights in ['hasc', "HASC"]:
-                weights = 'weights/vgg16/vgg16_hasc_weights_{}.hdf5'.format(int(input_shape[0] / 3))
-
-            # hasc or weights fileで初期化
-            if os.path.exists(weights):
-                print("Load weights from {}".format(weights))
-                model.load_weights(weights)
-            else:
-                # 重みのファイルがなかったらhe_normal初期化のまま返す
-                print("Not exist weights: {}".format(weights))
-
-    # topを含まないとき
-    else:
-        if weights is not None:
-            # hascで初期化
-            if weights in ['hasc', "HASC"]:
-                weights = 'weights/vgg16/vgg16_hasc_weights_{}.hdf5'.format(int(input_shape[0] / 3))
-
-            # hasc or weights fileで初期化
-            if os.path.exists(weights):
-                print("Load weights from {}".format(weights))
-                model.load_weights(weights)
-            else:
-                # 重みのファイルがなかったらhe_normal初期化のまま返す
-                print("Not exist weights: {}".format(weights))
-
-        if pooling is None:
-            # topを削除する
-            model = Model(inputs=model.input, outputs=model.layers[-7].output)
-        elif pooling == 'avg':
-            y = GlobalAveragePooling1D()(model.layers[-7].output)
-            model = Model(inputs=model.input, outputs=y)
-        elif pooling == 'max':
-            y = GlobalMaxPooling1D()(model.layers[-7].output)
-            model = Model(inputs=model.input, outputs=y)
-        else:
-            print("Not exist pooling option: {}".format(pooling))
-            model = Model(inputs=model.input, outputs=model.layers[-7].output)
+    model = VGG(16, include_top=include_top, weights=weights, input_shape=input_shape, pooling=pooling, classes=classes,
+                classifier_activation=classifier_activation)
 
     return model
 

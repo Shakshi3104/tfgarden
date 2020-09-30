@@ -1,10 +1,9 @@
 import abc
 
+from tensorflow.keras.layers import Conv1D, MaxPooling1D
+
 
 # 深層学習モデルの基底クラス
-from tensorflow.python.keras.layers import Conv1D, MaxPooling1D
-
-
 class DLModelBuilder(metaclass=abc.ABCMeta):
     def __init__(self, kernel_size, strides, kernel_initializer, padding, input_shape, num_classes):
         self.kernel_size = kernel_size
@@ -21,6 +20,7 @@ class DLModelBuilder(metaclass=abc.ABCMeta):
         # pass
 
 
+# ConvBlock for VGG
 class ConvBlock:
     def __init__(self, repeat, filters, kernel_size=3, strides=1, padding='same', activation='relu',
                  kernel_initializer='he_normal', pool_size=2):

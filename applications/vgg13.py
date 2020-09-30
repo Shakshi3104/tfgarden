@@ -1,16 +1,16 @@
-from tensorflow.keras.layers import Input, Flatten, Dense
-from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import Input, Flatten, Dense, Dropout
 from tensorflow.keras.models import Model
 
 from applications.base import DLModelBuilder, ConvBlock
 from applications.vgg import VGG
 
 
-class BaseVGG19(DLModelBuilder):
+# he_normalで初期化するVGG13
+class BaseVGG13(DLModelBuilder):
     def __init__(self, kernel_size=3, strides=1, kernel_initializer='he_normal',
                  padding='same', input_shape=(256 * 3, 1), num_classes=6, classifier_activation='softmax'):
         """
-        VGG19
+        VGG13
             kernel_size: kernel_size of Conv1D, default `3`
             strides: strides of Conv1D, default `1`
             kernel_initializer: kernel_initializer of Conv1D and Dense (Fully-connected layers), default `'he_normal'`
@@ -19,10 +19,10 @@ class BaseVGG19(DLModelBuilder):
             num_classes: The number of target classes
             classifier_activation: The activation function to use on the "top" layer, default `"softmax"`
         """
-        super(BaseVGG19, self).__init__(kernel_size=kernel_size, strides=strides, kernel_initializer=kernel_initializer,
+        super(BaseVGG13, self).__init__(kernel_size=kernel_size, strides=strides, kernel_initializer=kernel_initializer,
                                         padding=padding, input_shape=input_shape, num_classes=num_classes)
         self.classifier_activation = classifier_activation
-        self.model_name = "VGG19"
+        self.model_name = "VGG11"
 
     def __call__(self, *args, **kwargs):
         model = self.get_model()
@@ -34,11 +34,11 @@ class BaseVGG19(DLModelBuilder):
                       kernel_initializer=self.kernel_initializer)(inputs)
         x = ConvBlock(2, 32, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(4, 64, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+        x = ConvBlock(2, 64, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(4, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+        x = ConvBlock(2, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(4, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+        x = ConvBlock(2, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
 
         x = Flatten()(x)
@@ -52,10 +52,10 @@ class BaseVGG19(DLModelBuilder):
         return model
 
 
-# VGG19を読み込む関数
-def VGG19(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+# VGG13を読み込む関数
+def VGG13(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
     """
-    applications.vgg19.VGG19
+    applications.vgg13.VGG13
         Arguments
             include_top : whether to include the 3 fully-connected layers at the top of the network.
             weights : one of 'None' (he_normal initialization), 'hasc' (pre-training on HASC), or the path to the weights file to be loaded.
@@ -70,14 +70,14 @@ def VGG19(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
             A `tensorflow.keras.Model` instance.
     """
 
-    model = VGG(19, include_top=include_top, weights=weights, input_shape=input_shape, pooling=pooling, classes=classes,
+    model = VGG(13, include_top=include_top, weights=weights, input_shape=input_shape, pooling=pooling, classes=classes,
                 classifier_activation=classifier_activation)
 
     return model
 
 
 if __name__ == '__main__':
-    model = VGG19(include_top=True,
+    model = VGG13(include_top=True,
                   weights=None,
                   input_shape=None,
                   pooling=None,
