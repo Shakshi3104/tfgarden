@@ -117,10 +117,11 @@ def VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
         if weights is not None:
             # hascで初期化
             if weights in ['hasc', "HASC"]:
-                weights = 'weights/vgg16/vgg16_hasc_weights_{}.hdf5'.format(input_shape[0])
+                weights = 'weights/vgg16/vgg16_hasc_weights_{}.hdf5'.format(int(input_shape[0] / 3))
 
             # hasc or weights fileで初期化
             if os.path.exists(weights):
+                print("Load weights from {}".format(weights))
                 model.load_weights(weights)
             else:
                 # 重みのファイルがなかったらhe_normal初期化のまま返す
@@ -131,10 +132,11 @@ def VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
         if weights is not None:
             # hascで初期化
             if weights in ['hasc', "HASC"]:
-                weights = 'weights/vgg16/vgg16_hasc_weights_{}.hdf5'.format(input_shape[0])
+                weights = 'weights/vgg16/vgg16_hasc_weights_{}.hdf5'.format(int(input_shape[0] / 3))
 
             # hasc or weights fileで初期化
             if os.path.exists(weights):
+                print("Load weights from {}".format(weights))
                 model.load_weights(weights)
             else:
                 # 重みのファイルがなかったらhe_normal初期化のまま返す
@@ -149,5 +151,21 @@ def VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
         elif pooling == 'max':
             y = GlobalMaxPooling1D()(model.layers[-7].output)
             model = Model(inputs=model.input, outputs=y)
+        else:
+            print("Not exist pooling option: {}".format(pooling))
+            model = Model(inputs=model.input, outputs=model.layers[-7].output)
 
     return model
+
+
+if __name__ == '__main__':
+    weights = '../weights/vgg16/vgg16_hasc_weights_256.hdf5'
+
+    model = VGG16(include_top=False,
+                  weights=None,
+                  input_shape=None,
+                  pooling=None,
+                  classes=6,
+                  classifier_activation='softmax')
+
+    print(model.summary())
