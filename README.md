@@ -6,6 +6,6 @@ The models implemented here can also be used as a source domain for sensor-based
 ## Modules
 
 - [`vgg16`](reference/reference.md#applicationsvgg16vgg16) module : VGG16 model for HASC for Keras.
-- `vgg19` module : VGG19 model for HASC for Keras, **Not implemented yet**.
+- [`vgg19`](reference/reference.md#applicationsvgg19vgg19) module : VGG19 model for HASC for Keras, **Not implemented yet**.
 - `resnet` module : ResNet model for HASC for Keras, **Not implemented yet**.
 - `alexnet` module : AlexNet model for HASC for Keras, **Not implemented yet**.
