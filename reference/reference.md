@@ -2,7 +2,9 @@
 TensorFlow CNN Collections for HASC are canned architecture with pre-trained weights.
 
 ## applications.vgg16.VGG16
-`applications.vgg16.VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax')`
+```python
+applications.vgg16.VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax')
+```
 
 Reference paper:
 - [Very Deep Convolutional Networks for Large-Scale Image Recognition](https://arxiv.org/abs/1409.1556) (ICLR 2015)
