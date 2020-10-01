@@ -16,4 +16,4 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 - `resnet` module : ResNet models for HASC for Keras, **Not implemented yet**.
 - `alexnet` module : AlexNet model for HASC for Keras, **Not implemented yet**.
 - [`pyramidnet`](reference/pyramidnet.md#pyramidnet) module : PyramidNet models for HASC for Keras.
-- `efficientnet` module : EfficientNet models for HASC for Keras.
+- [`efficientnet`](reference/efficientnet.md#efficientnet) module : EfficientNet models for HASC for Keras.

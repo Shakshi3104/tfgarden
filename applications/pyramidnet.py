@@ -272,10 +272,14 @@ def PyramidNet152(include_top=True, weights='hasc', input_shape=None, pooling=No
 
 
 if __name__ == '__main__':
-    model = PyramidNet50(
+    model = PyramidNet18(
                          include_top=True,
                          weights=None,
                          input_shape=None,
                          pooling='avg',
                          alpha=48)
     print(model.summary())
+
+    from tensorflow.keras.utils import plot_model
+
+    plot_model(model, to_file="../weights/pyramidnet18.pdf", show_shapes=True)
