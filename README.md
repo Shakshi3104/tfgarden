@@ -17,3 +17,17 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 - `alexnet` module : AlexNet model for HASC for Keras, **Not implemented yet**.
 - [`pyramidnet`](reference/pyramidnet.md#pyramidnet) module : PyramidNet models for HASC for Keras.
 - [`efficientnet`](reference/efficientnet.md#efficientnet) module : EfficientNet models for HASC for Keras.
+
+
+## Accuracy
+| models | accuracy |
+| :----: | :------: |
+| VGG11  |          |
+| VGG13  | |
+| VGG16  | |
+| VGG19  | |
+| ResNet16 | |
+| ResNet18 | |
+| PyramidNet18 | |
+| PyramidNet34 | |
+| EfficientNetB0 | |
