@@ -147,7 +147,7 @@ class Stack:
 class BasePyramidNet(DLModelBuilder):
     def __init__(self, block, layers, in_shape, num_classes, alpha, zero_init_residual=False, classifier_activation='softmax'):
         super(BasePyramidNet, self).__init__(kernel_size=None, strides=None, kernel_initializer=None, padding=None,
-                                            input_shape=in_shape, num_classes=num_classes)
+                                             input_shape=in_shape, num_classes=num_classes)
 
         self.block = block
         self.layers = layers
