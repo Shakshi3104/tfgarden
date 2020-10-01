@@ -255,6 +255,10 @@ def __EfficientNet(b, include_top=True, weights='hasc', input_shape=None, poolin
     if input_shape is None:
         input_shape = (256 * 3, 1)
 
+    if weights in ['hasc', 'HASC'] and include_top and classes != 6:
+        raise ValueError('If using `weights` as `"hasc"` with `include_top`'
+                         ' as true, `classes` should be 6')
+
     if b == 0:
         efficient = BaseEfficientNet(1.0, 1.0, 224, 0.2, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
     elif b == 1:

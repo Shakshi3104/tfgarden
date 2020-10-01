@@ -9,6 +9,10 @@ def VGG(number, include_top=True, weights='hasc', input_shape=None, pooling=None
     if input_shape is None:
         input_shape = (256 * 3, 1)
 
+    if weights in ['hasc', 'HASC'] and include_top and classes != 6:
+        raise ValueError('If using `weights` as `"hasc"` with `include_top`'
+                         ' as true, `classes` should be 6')
+
     from applications import vgg11, vgg13, vgg16, vgg19
     # VGGのバージョン指定
     if number == 11:

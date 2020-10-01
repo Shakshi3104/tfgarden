@@ -203,6 +203,10 @@ def __PyramidNet(number, include_top=True, weights='hasc', input_shape=None, poo
     if input_shape is None:
         input_shape = (256 * 3, 1)
 
+    if weights in ['hasc', 'HASC'] and include_top and classes != 6:
+        raise ValueError('If using `weights` as `"hasc"` with `include_top`'
+                         ' as true, `classes` should be 6')
+
     if number == 18:
         pyramid = BasePyramidNet(BasicBlock, [2, 2, 2, 2], input_shape, classes, alpha, False, classifier_activation)
     elif number == 34:
