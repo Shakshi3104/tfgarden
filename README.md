@@ -22,12 +22,22 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 ## Accuracy
 | models | accuracy |
 | :----: | :------: |
-| VGG11  |          |
-| VGG13  | |
-| VGG16  | |
-| VGG19  | |
-| ResNet16 | |
-| ResNet18 | |
-| PyramidNet18 | |
-| PyramidNet34 | |
-| EfficientNetB0 | |
+| VGG11  | 85.5% |
+| VGG13  | 83.9% |
+| VGG16  | 84.1% |
+| VGG19  | 84.1% |
+| ResNet16 | 79.3%  |
+| ResNet18 | 80.7% |
+| PyramidNet18 | 75.4% |
+| PyramidNet34 | 75.4% |
+| PyramidNet50 | 74.7% |
+| PyramidNet101 | 77.6% |
+| PyramidNet152 | 76.3% |
+| EfficientNetB0 | 89.9% |
+| EfficientNetB1 ||
+| EfficientNetB2 ||
+| EfficientNetB3 ||
+| EfficientNetB4 ||
+| EfficientNetB5 ||
+| EfficientNetB6 ||
+| EfficientNetB7 ||
