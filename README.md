@@ -34,7 +34,7 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 | PyramidNet101 | 77.6% |
 | PyramidNet152 | 76.3% |
 | EfficientNetB0 | 89.9% |
-| EfficientNetB1 ||
+| EfficientNetB1 | 88.5%|
 | EfficientNetB2 ||
 | EfficientNetB3 ||
 | EfficientNetB4 ||
