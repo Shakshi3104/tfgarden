@@ -13,7 +13,7 @@ def VGG(number, include_top=True, weights='hasc', input_shape=None, pooling=None
         raise ValueError('If using `weights` as `"hasc"` with `include_top`'
                          ' as true, `classes` should be 6')
 
-    from applications import vgg11, vgg13, vgg16, vgg19
+    from . import vgg11, vgg13, vgg16, vgg19
     # VGGのバージョン指定
     if number == 11:
         vgg = vgg11.BaseVGG11(input_shape=input_shape, num_classes=classes, classifier_activation=classifier_activation)
