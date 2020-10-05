@@ -42,11 +42,13 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 | EfficientNetB6 | 88.0 % |
 | EfficientNetB7 | 89.2 % |
 
-### Training Conditions
+
+#### Training Conditions
+
 | contents | condition |
 |:---:|:---:|
 | Number of data | 25,130 |
 | Number of subject | 183 |
 
 ## HASC
-
+**HASC Corpus** is the dataset of human activity recognition collected by [human activity sensing consortium (HASC)](http://hasc.jp).
