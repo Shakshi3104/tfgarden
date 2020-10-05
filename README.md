@@ -15,6 +15,9 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 - [`vgg19`](reference/vgg.md#applicationsvgg19vgg19) module : VGG19 model for HASC for Keras.
 - [`resnet`](reference/resnet.md#resnet) module : ResNet models for HASC for Keras.
 - `alexnet` module : AlexNet model for HASC for Keras, **Not implemented yet**.
+- `mobilenet` module : MobileNet model for HASC for Keras, **Not implemented yet**.
+- `mobilenet_v2` module: MobileNetV2 model for HASC for Keras, **Not implemented yet**.
+- `mobilenet_v3` module: MobileNetV3 model for HASC for Keras, **Not implemented yet**.
 - [`pyramidnet`](reference/pyramidnet.md#pyramidnet) module : PyramidNet models for HASC for Keras.
 - [`efficientnet`](reference/efficientnet.md#efficientnet) module : EfficientNet models for HASC for Keras.
 
@@ -45,10 +48,14 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 
 #### Training Conditions
 
-| contents | condition |
-|:---:|:---:|
+|  | condition |
+|:---|:---:|
 | Number of data | 25,130 |
 | Number of subject | 183 |
+| Optimizer | Adam |
+| Learning rate | 1e-3 |
+| Batch size | 20 |
+| Epochs | 200 |
 
 ## HASC
 **HASC Corpus** is the dataset of human activity recognition collected by [human activity sensing consortium (HASC)](http://hasc.jp).
