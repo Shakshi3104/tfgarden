@@ -20,24 +20,33 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 
 
 ## Accuracy
-| models | accuracy |
-| :----: | :------: |
-| VGG11  | 85.5% |
-| VGG13  | 83.9% |
-| VGG16  | 84.1% |
-| VGG19  | 84.1% |
-| ResNet16 | 79.3%  |
-| ResNet18 | 80.7% |
-| PyramidNet18 | 75.4% |
-| PyramidNet34 | 75.4% |
-| PyramidNet50 | 74.7% |
-| PyramidNet101 | 77.6% |
-| PyramidNet152 | 76.3% |
-| EfficientNetB0 | 89.9% |
-| EfficientNetB1 | 88.5%|
-| EfficientNetB2 ||
-| EfficientNetB3 ||
-| EfficientNetB4 ||
-| EfficientNetB5 ||
-| EfficientNetB6 ||
-| EfficientNetB7 ||
+| model | accuracy |
+|:-----:|:--------:|
+| VGG11 | 85.5 % |
+| VGG13 | 83.9 % |
+| VGG16 | 84.1 % |
+| VGG19 | 84.0 % |
+| ResNet16 | 79.3 % |
+| ResNet18 | 80.7 % |
+| PyramidNet18 | 75.4 % |
+| PyramidNet34 | 75.4 % |
+| PyramidNet50 | 74.7 % |
+| PyramidNet101 | 77.6 % |
+| PyramidNet152 | 76.3 % |
+| EfficientNetB0 | 89.9 % |
+| EfficientNetB1 | 88.5 % |
+| EfficientNetB2 | 89.6 % |
+| EfficientNetB3 | 90.1 % |
+| EfficientNetB4 | 88.9 % |
+| EfficientNetB5 | 89.9 % |
+| EfficientNetB6 | 88.0 % |
+| EfficientNetB7 | 89.2 % |
+
+### Training Conditions
+| contents | condition |
+|:---:|:---:|
+| Number of data | 25,130 |
+| Number of subject | 183 |
+
+## HASC
+
