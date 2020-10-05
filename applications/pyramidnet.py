@@ -5,7 +5,7 @@ from tensorflow.keras.models import Model
 
 import os
 
-from applications.base import DLModelBuilder
+from .base import DLModelBuilder
 
 
 class Conv3:

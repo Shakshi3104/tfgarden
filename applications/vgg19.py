@@ -2,8 +2,8 @@ from tensorflow.keras.layers import Input, Flatten, Dense
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.models import Model
 
-from applications.base import DLModelBuilder, ConvBlock
-from applications.vgg import VGG
+from .base import DLModelBuilder, ConvBlock
+from .vgg import VGG
 
 
 class BaseVGG19(DLModelBuilder):

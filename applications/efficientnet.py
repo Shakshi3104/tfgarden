@@ -6,9 +6,8 @@ from tensorflow.keras.models import Model
 
 import os
 import math
-import copy
 
-from applications.base import DLModelBuilder
+from .base import DLModelBuilder
 
 
 class Block:
