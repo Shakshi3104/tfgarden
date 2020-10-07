@@ -59,3 +59,6 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 
 ## HASC
 **HASC Corpus** is the dataset of human activity recognition collected by [human activity sensing consortium (HASC)](http://hasc.jp).
+
+## Dependency
+- `tensorflow >= 2.0`

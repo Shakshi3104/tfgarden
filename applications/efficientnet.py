@@ -93,6 +93,10 @@ class Block:
         return x
 
 
+# Differences from the original
+# use SeparableConv1D because DepthwiseConv1D is not implemented in tensorflow.
+# use 'relu' for activation function instead of "swish"
+# use 'he_normal' for kernel initializer
 class BaseEfficientNet(DLModelBuilder):
     def __init__(self, width_coefficient, depth_coefficient, default_size, dropout_rate=0.2, drop_connect_rate=0.2,
                  depth_divisor=8, activation='swish', input_shape=(256 * 3, 1), num_classes=6,
