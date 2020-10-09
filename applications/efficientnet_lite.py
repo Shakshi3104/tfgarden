@@ -255,7 +255,8 @@ class BaseEfficientNetLite(DLModelBuilder):
         return model
 
 
-def __EfficientNet_lite(b, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+def __EfficientNet_lite(b, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                        classifier_activation='softmax'):
     if input_shape is None:
         input_shape = (256 * 3, 1)
 
@@ -264,28 +265,37 @@ def __EfficientNet_lite(b, include_top=True, weights='hasc', input_shape=None, p
                          ' as true, `classes` should be 6')
 
     if b == 0:
-        efficient = BaseEfficientNetLite(1.0, 1.0, 224, 0.2, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        efficient = BaseEfficientNetLite(1.0, 1.0, 224, 0.2, input_shape=input_shape, activation='relu',
+                                         num_classes=classes, classifier_activation=classifier_activation)
     elif b == 1:
-        efficient = BaseEfficientNetLite(1.0, 1.1, 240, 0.2, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        efficient = BaseEfficientNetLite(1.0, 1.1, 240, 0.2, input_shape=input_shape, activation='relu',
+                                         num_classes=classes, classifier_activation=classifier_activation)
     elif b == 2:
-        efficient = BaseEfficientNetLite(1.1, 1.2, 260, 0.3, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        efficient = BaseEfficientNetLite(1.1, 1.2, 260, 0.3, input_shape=input_shape, activation='relu',
+                                         num_classes=classes, classifier_activation=classifier_activation)
     elif b == 3:
-        efficient = BaseEfficientNetLite(1.2, 1.4, 300, 0.3, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        efficient = BaseEfficientNetLite(1.2, 1.4, 300, 0.3, input_shape=input_shape, activation='relu',
+                                         num_classes=classes, classifier_activation=classifier_activation)
     elif b == 4:
-        efficient = BaseEfficientNetLite(1.4, 1.8, 380, 0.4, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        efficient = BaseEfficientNetLite(1.4, 1.8, 380, 0.4, input_shape=input_shape, activation='relu',
+                                         num_classes=classes, classifier_activation=classifier_activation)
     elif b == 5:
-        efficient = BaseEfficientNetLite(1.6, 2.2, 456, 0.4, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        efficient = BaseEfficientNetLite(1.6, 2.2, 456, 0.4, input_shape=input_shape, activation='relu',
+                                         num_classes=classes, classifier_activation=classifier_activation)
     elif b == 6:
-        efficient = BaseEfficientNetLite(1.8, 2.6, 528, 0.5, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        efficient = BaseEfficientNetLite(1.8, 2.6, 528, 0.5, input_shape=input_shape, activation='relu',
+                                         num_classes=classes, classifier_activation=classifier_activation)
     elif b == 7:
-        efficient = BaseEfficientNetLite(2.0, 3.1, 600, 0.5, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        efficient = BaseEfficientNetLite(2.0, 3.1, 600, 0.5, input_shape=input_shape, activation='relu',
+                                         num_classes=classes, classifier_activation=classifier_activation)
 
     # モデルをビルドする
     model = efficient()
 
     if weights is not None:
         if weights in ['hasc', "HASC"]:
-            weights = 'weights/efficientnetb{}/efficientnetb{}_hasc_weights_{}.hdf5'.format(b, b, int(input_shape[0] / 3))
+            weights = 'weights/efficientnetb{}/efficientnetb{}_hasc_weights_{}.hdf5'.format(b, b,
+                                                                                            int(input_shape[0] / 3))
 
             # hasc or weights fileで初期化
             if os.path.exists(weights):
@@ -312,26 +322,31 @@ def __EfficientNet_lite(b, include_top=True, weights='hasc', input_shape=None, p
     return model
 
 
-def EfficientNet_lite0(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+def EfficientNet_lite0(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                       classifier_activation='softmax'):
     model = __EfficientNet_lite(0, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
-def EfficientNet_lite1(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+def EfficientNet_lite1(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                       classifier_activation='softmax'):
     model = __EfficientNet_lite(1, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
-def EfficientNet_lite2(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+def EfficientNet_lite2(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                       classifier_activation='softmax'):
     model = __EfficientNet_lite(2, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
-def EfficientNet_lite3(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+def EfficientNet_lite3(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                       classifier_activation='softmax'):
     model = __EfficientNet_lite(3, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
-def EfficientNet_lite4(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+def EfficientNet_lite4(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                       classifier_activation='softmax'):
     model = __EfficientNet_lite(4, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
