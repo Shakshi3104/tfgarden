@@ -17,7 +17,7 @@ class Conv3:
         self.stride = stride
 
     def __call__(self, x):
-        x = Conv1D(self.out_planes, kernel_size=1, strides=self.stride, padding='same', use_bias=False)(x)
+        x = Conv1D(self.out_planes, kernel_size=3, strides=self.stride, padding='same', use_bias=False)(x)
         return x
 
 
