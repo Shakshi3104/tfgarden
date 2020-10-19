@@ -20,6 +20,7 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 - `mobilenet_v3` module: MobileNetV3 model for HASC for Keras, **Not implemented yet**.
 - [`pyramidnet`](reference/pyramidnet.md#pyramidnet) module : PyramidNet models for HASC for Keras.
 - [`efficientnet`](reference/efficientnet.md#efficientnet) module : EfficientNet models for HASC for Keras.
+- [`efficientnet_lite`](reference/efficientnet_lite.md#efficientnet-lite) module : EfficientNet-Lite models for HASC for Keras.
 
 
 ## Accuracy
