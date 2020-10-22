@@ -32,11 +32,11 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 | VGG19 | 84.0 % |
 | ResNet16 | 79.3 % |
 | ResNet18 | 80.7 % |
-| PyramidNet18 | 75.4 % |
-| PyramidNet34 | 75.4 % |
-| PyramidNet50 | 74.7 % |
-| PyramidNet101 | 77.6 % |
-| PyramidNet152 | 76.3 % |
+| PyramidNet18 | 86.2 % |
+| PyramidNet34 | 86.8 % |
+| PyramidNet50 | 86.1 % |
+| PyramidNet101 | 87.1 % |
+| PyramidNet152 | 87.7 % |
 | EfficientNetB0 | 89.9 % |
 | EfficientNetB1 | 88.5 % |
 | EfficientNetB2 | 89.6 % |
@@ -45,6 +45,11 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 | EfficientNetB5 | 89.9 % |
 | EfficientNetB6 | 88.0 % |
 | EfficientNetB7 | 89.2 % |
+| EfficientNet_lite0 | 87.4 % |
+| EfficientNet_lite1 | 88.8 % |
+| EfficientNet_lite2 | 84.5 % |
+| EfficientNet_lite3 | 87.4 % |
+| EfficientNet_lite4 | 87.8 % |
 
 
 #### Training Conditions
