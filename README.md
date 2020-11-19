@@ -23,7 +23,7 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 - [`efficientnet_lite`](reference/efficientnet_lite.md#efficientnet-lite) module : EfficientNet-Lite models for HASC for Keras.
 
 
-## Accuracy
+## Accuracy 
 | model | accuracy |
 |:-----:|:--------:|
 | VGG11 | 85.5 % |
