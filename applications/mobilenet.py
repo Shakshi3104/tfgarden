@@ -5,7 +5,7 @@ from tensorflow.keras.layers import Conv1D, BatchNormalization, ReLU, SeparableC
 from tensorflow.keras.layers import Input, Reshape, Dropout, Activation
 from tensorflow.keras.models import Model
 
-from base import DLModelBuilder
+from .base import DLModelBuilder
 
 
 class ConvBlock:
