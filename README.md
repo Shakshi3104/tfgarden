@@ -15,7 +15,7 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 - [`vgg19`](reference/vgg.md#applicationsvgg19vgg19) module : VGG19 model for HASC for Keras.
 - [`resnet`](reference/resnet.md#resnet) module : ResNet models for HASC for Keras.
 - `alexnet` module : AlexNet model for HASC for Keras, **Not implemented yet**.
-- `mobilenet` module : MobileNet model for HASC for Keras, **Not implemented yet**.
+- [`mobilenet`](reference/mobilenet.md#mobilenet) module : MobileNet model for HASC for Keras.
 - `mobilenet_v2` module: MobileNetV2 model for HASC for Keras, **Not implemented yet**.
 - `mobilenet_v3` module: MobileNetV3 model for HASC for Keras, **Not implemented yet**.
 - [`pyramidnet`](reference/pyramidnet.md#pyramidnet) module : PyramidNet models for HASC for Keras.
