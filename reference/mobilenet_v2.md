@@ -1,6 +1,6 @@
-# MobileNet
+# MobileNetV2
 
-## application.mobilenet.MobileNet
+## application.mobilenet_v2.MobileNetV2
 ```python
 MobileNetV2(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax',
               alpha=1.0)
