@@ -1,11 +1,13 @@
 import os
 
 import tensorflow as tf
-from tensorflow.keras.layers import Conv1D, BatchNormalization, ReLU, SeparableConv1D, ZeroPadding1D, GlobalAveragePooling1D, GlobalMaxPooling1D
+from tensorflow.keras.layers import Conv1D, BatchNormalization, ReLU, SeparableConv1D, ZeroPadding1D, \
+    GlobalAveragePooling1D, GlobalMaxPooling1D
 from tensorflow.keras.layers import Input, Reshape, Dropout, Activation, Add, Dense
 from tensorflow.keras.models import Model
 
 from .base import DLModelBuilder
+
 
 def _make_divisible(v, divisor, min_value=None):
     if min_value is None:
@@ -73,7 +75,7 @@ class InvertedResBlock:
 
 
 class BaseMobileNetV2(DLModelBuilder):
-    def __init__(self, input_shape=(256*3, 1), alpha=1.0, num_classes=6, classifier_activation='softmax'):
+    def __init__(self, input_shape=(256 * 3, 1), alpha=1.0, num_classes=6, classifier_activation='softmax'):
         self.input_shape = input_shape
         self.alpha = alpha
         self.num_classes = num_classes
@@ -137,10 +139,11 @@ class BaseMobileNetV2(DLModelBuilder):
         return model
 
 
-def MobileNetV2(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax',
+def MobileNetV2(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                classifier_activation='softmax',
                 alpha=1.0):
     if input_shape is None:
-        input_shape = (256*3, 1)
+        input_shape = (256 * 3, 1)
 
     if weights in ['hasc', 'HASC'] and include_top and classes != 6:
         raise ValueError('If using `weights` as `"hasc"` with `include_top`'
