@@ -14,7 +14,7 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 - `inception_v3` module: Inception V3 model for HASC for Keras, **Not implemented yet**.
 - [`mobilenet`](reference/mobilenet.md#mobilenet) module : MobileNet v1 models for HASC for Keras.
 - [`mobilenet_v2`](reference/mobilenet_v2.md#mobilenet-v2) module: MobileNet v2 models for HASC for Keras.
-- [`mobilenet_v3`](reference/mobilenet_v3.md#mobilenet-v3) module: MobileNet v3 models for HASC for Keras, **Not implemented yet**.
+- [`mobilenet_v3`](reference/mobilenet_v3.md#mobilenet-v3) module: MobileNet v3 models for HASC for Keras.
 - `nasnet` module: NASNet-A models for HASC for Keras, **Not implemented yet**.
 - [`resnet`](reference/resnet.md#resnet) module : ResNet models for HASC for Keras.
 - `resnet_v2` module: ResNet v2 models for HASC for Keras, **Not implemented yet**.
