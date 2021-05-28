@@ -23,7 +23,7 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 - [`vgg16`](reference/vgg.md#applicationsvgg16vgg16) module : VGG16 model for HASC for Keras.
 - [`vgg19`](reference/vgg.md#applicationsvgg19vgg19) module : VGG19 model for HASC for Keras.
 - `xception` module: Xception V1 model for HASC for Keras, **Not implemented yet**.
-- `mnasnet` module: MnasNet model for HASC for Keras, **Not implemented yet**.
+- [`mnasnet`](reference/mnasnet.md#mnasnet) module: MnasNet model for HASC for Keras.
 - [`pyramidnet`](reference/pyramidnet.md#pyramidnet) module : PyramidNet models for HASC for Keras.
 - [`efficientnet_lite`](reference/efficientnet_lite.md#efficientnet-lite) module : EfficientNet-Lite models for HASC for Keras.
 

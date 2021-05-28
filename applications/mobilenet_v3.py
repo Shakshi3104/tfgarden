@@ -19,8 +19,10 @@ def _depth(v, divisor=8, min_value=None):
 def relu(x):
     return layers.ReLU()(x)
 
+
 def hard_sigmoid(x):
     return layers.ReLU(6.)(x + 3.) * (1. / 6.)
+
 
 def hard_swish(x):
     return layers.Multiply()([hard_sigmoid(x), x])
@@ -93,7 +95,7 @@ class InvertedResBlock:
             int(x.shape[-1]),
             self.kernel_size,
             strides=self.stride,
-            padding= 'same' if self.stride == 1 else 'valid',
+            padding='same' if self.stride == 1 else 'valid',
             use_bias=False,
             name=prefix + 'depthwise'
         )(x)
@@ -127,7 +129,8 @@ class InvertedResBlock:
 
 
 class BaseMobileNetV3(DLModelBuilder):
-    def __init__(self, stack_fn, last_point_ch, input_shape=(256 * 3, 1), alpha=1.0, model_type='large', minimalistic=False, num_classes=6, dropout_rate=0.2, classifier_activation='softmax'):
+    def __init__(self, stack_fn, last_point_ch, input_shape=(256 * 3, 1), alpha=1.0, model_type='large',
+                 minimalistic=False, num_classes=6, dropout_rate=0.2, classifier_activation='softmax'):
         self.stack_fn = stack_fn
         self.last_point_ch = last_point_ch
         self.input_shape = input_shape
@@ -208,7 +211,8 @@ class BaseMobileNetV3(DLModelBuilder):
         return model
 
 
-def __MobileNetV3Small(input_shape=None, alpha=1.0, minimalistic=False, classes=6, dropout_rate=0.2, classifier_activation='softmax'):
+def __MobileNetV3Small(input_shape=None, alpha=1.0, minimalistic=False, classes=6, dropout_rate=0.2,
+                       classifier_activation='softmax'):
     def stack_fn(x, kernel, activation, se_ratio):
         def depth(d):
             return _depth(d * alpha)
@@ -231,7 +235,8 @@ def __MobileNetV3Small(input_shape=None, alpha=1.0, minimalistic=False, classes=
     return model
 
 
-def __MobileNetV3Large(input_shape=None, alpha=1.0, minimalistic=False, classes=6, dropout_rate=0.2, classifier_activation='softmax'):
+def __MobileNetV3Large(input_shape=None, alpha=1.0, minimalistic=False, classes=6, dropout_rate=0.2,
+                       classifier_activation='softmax'):
     def stack_fn(x, kernel, activation, se_ratio):
         def depth(d):
             return _depth(d * alpha)
@@ -258,7 +263,8 @@ def __MobileNetV3Large(input_shape=None, alpha=1.0, minimalistic=False, classes=
     return model
 
 
-def __MobileNetV3(type, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax',
+def __MobileNetV3(type, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                  classifier_activation='softmax',
                   alpha=1.0, minimalistic=False):
     if input_shape is None:
         input_shape = (256 * 3, 1)
@@ -301,15 +307,19 @@ def __MobileNetV3(type, include_top=True, weights='hasc', input_shape=None, pool
     return model
 
 
-def MobileNetV3Small(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax',
-                  alpha=1.0, minimalistic=False):
-    model = __MobileNetV3('small', include_top, weights, input_shape, pooling, classes, classifier_activation, alpha, minimalistic)
+def MobileNetV3Small(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                     classifier_activation='softmax',
+                     alpha=1.0, minimalistic=False):
+    model = __MobileNetV3('small', include_top, weights, input_shape, pooling, classes, classifier_activation, alpha,
+                          minimalistic)
     return model
 
 
-def MobileNetV3Large(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax',
-                  alpha=1.0, minimalistic=False):
-    model = __MobileNetV3('large', include_top, weights, input_shape, pooling, classes, classifier_activation, alpha, minimalistic)
+def MobileNetV3Large(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                     classifier_activation='softmax',
+                     alpha=1.0, minimalistic=False):
+    model = __MobileNetV3('large', include_top, weights, input_shape, pooling, classes, classifier_activation, alpha,
+                          minimalistic)
     return model
 
 
