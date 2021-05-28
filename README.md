@@ -10,7 +10,7 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 
 - [`densenet`](reference/densenet.md#densenet) module: DenseNet models for HASC for Keras.
 - [`efficientnet`](reference/efficientnet.md#efficientnet) module : EfficientNet models for HASC for Keras.
-- `inception_resnet_v2` module: Inception-ResNet V2 model for HASC for Keras, **Not implemented yet**.
+- [`inception_resnet_v2`](reference/inception_resnet_v2.md#inception-resnet-v2) module: Inception-ResNet V2 model for HASC for Keras.
 - `inception_v3` module: Inception V3 model for HASC for Keras, **Not implemented yet**.
 - [`mobilenet`](reference/mobilenet.md#mobilenet) module : MobileNet v1 models for HASC for Keras.
 - [`mobilenet_v2`](reference/mobilenet_v2.md#mobilenet-v2) module: MobileNet v2 models for HASC for Keras.
