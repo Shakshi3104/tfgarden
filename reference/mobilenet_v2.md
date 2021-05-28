@@ -1,4 +1,4 @@
-# MobileNetV2
+# MobileNet v2
 
 ## application.mobilenet_v2.MobileNetV2
 ```python
