@@ -8,7 +8,7 @@ TensorFlow CNN Collections for HASC are canned architecture with pre-trained wei
 
 pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1HMDMDz91laNvsyaTvAMgXzX-pIjDMpwy?usp=sharing).
 
-- `densenet` module: DenseNet models for HASC for Keras, **Not implemented yet**.
+- [`densenet`](reference/densenet.md#densenet) module: DenseNet models for HASC for Keras.
 - [`efficientnet`](reference/efficientnet.md#efficientnet) module : EfficientNet models for HASC for Keras.
 - `inception_resnet_v2` module: Inception-ResNet V2 model for HASC for Keras, **Not implemented yet**.
 - `inception_v3` module: Inception V3 model for HASC for Keras, **Not implemented yet**.
