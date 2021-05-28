@@ -10,7 +10,7 @@ applications.mobilenet_v3.MobileNetV3Small(
 ```
 
 Reference:
-- [Searching for MobileNetV3] (ICCV 2019)
+- [Searching for MobileNetV3](https://arxiv.org/abs/1905.02244) (ICCV 2019)
 
 By default, it loads weights pre-trained on HASC. Check 'weights' for other options.
 
@@ -22,7 +22,7 @@ The default input size for this model is 768 (256 * 3).
 - input_shape : optional shape tuple, default `(768, 1)` (with channels_last data format).
 - pooling : optional pooling mode for feature extraction when `include_top` is False.
     - `None` means that the output of the model will be applied to the 3D tensor output of the last convolutional block.
-    - `avg` means that global average pooling will be applied to the output of the last convolutioinal block, and thus the output od the model will be a 2D tensor.
+    - `avg` means that global average pooling will be applied to the output of the last convolutioinal block, and thus the output of the model will be a 2D tensor.
     - `max` means that global max pooling will be applied.
 - classes : optional number of classes to classify images into, only to be specified if `include_top` is True, and if no weights argument is specified, default 6.
 - classifier_activation : A `str` or callable. The activation function to use on the "top" layer. Ignored unless `include_top=True`. Set classifier_activation=`None` to return the logits of the "top" layer, default `'softmax'`.
@@ -42,7 +42,7 @@ applications.mobilenet_v3.MobileNetV3Large(
 ```
 
 Reference:
-- [Searching for MobileNetV3] (ICCV 2019)
+- [Searching for MobileNetV3](https://arxiv.org/abs/1905.02244) (ICCV 2019)
 
 By default, it loads weights pre-trained on HASC. Check 'weights' for other options.
 
@@ -54,7 +54,7 @@ The default input size for this model is 768 (256 * 3).
 - input_shape : optional shape tuple, default `(768, 1)` (with channels_last data format).
 - pooling : optional pooling mode for feature extraction when `include_top` is False.
     - `None` means that the output of the model will be applied to the 3D tensor output of the last convolutional block.
-    - `avg` means that global average pooling will be applied to the output of the last convolutioinal block, and thus the output od the model will be a 2D tensor.
+    - `avg` means that global average pooling will be applied to the output of the last convolutioinal block, and thus the output of the model will be a 2D tensor.
     - `max` means that global max pooling will be applied.
 - classes : optional number of classes to classify images into, only to be specified if `include_top` is True, and if no weights argument is specified, default 6.
 - classifier_activation : A `str` or callable. The activation function to use on the "top" layer. Ignored unless `include_top=True`. Set classifier_activation=`None` to return the logits of the "top" layer, default `'softmax'`.
