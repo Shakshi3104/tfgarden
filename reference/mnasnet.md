@@ -10,7 +10,7 @@ applications.mnasnet.MnasNet(
 ```
 
 Reference:
-- [Mnasnet: Platform-Aware Neural Architecture Search for Mobile](https://arxiv.org/abs/1807.11626) (CVPR 2019)
+- [MnasNet: Platform-Aware Neural Architecture Search for Mobile](https://arxiv.org/abs/1807.11626) (CVPR 2019)
 
 By default, it loads weights pre-trained on HASC. Check 'weights' for other options.
 

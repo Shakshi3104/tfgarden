@@ -4,7 +4,7 @@ from tensorflow.python.keras import backend
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
 
-from base import DLModelBuilder
+from .base import DLModelBuilder
 
 
 class SeparableConvBlock:
@@ -87,7 +87,7 @@ class AdjustBlock:
                         self.filters // 2, 1,
                         padding='same',
                         use_bias=False,
-                        name='adjust_conv_1_%s' % self.block_id,
+                        name='adjust_conv_2_%s' % self.block_id,
                         kernel_initializer='he_normal'
                     )(p2)
 
@@ -144,6 +144,9 @@ class NormalACell:
             with backend.name_scope('block_1'):
                 x1_1 = SeparableConvBlock(self.filters, kernel_size=5, block_id='normal_left1_%s' % self.block_id)(h)
                 x1_2 = SeparableConvBlock(self.filters, block_id='normal_right1_%s' % self.block_id)(p)
+
+                x1_1, x1_2 = padding(x1_1, x1_2)
+
                 x1 = layers.add([x1_1, x1_2], name='normal_add_1_%s' % self.block_id)
 
             with backend.name_scope('block_2'):
@@ -156,6 +159,8 @@ class NormalACell:
                                              strides=1,
                                              padding='same',
                                              name='normal_left3_%s' % self.block_id)(h)
+                x3, p = padding(x3, p)
+
                 x3 = layers.add([x3, p], name='normal_add_3_%s' % self.block_id)
 
             with backend.name_scope('block_4'):
@@ -172,6 +177,10 @@ class NormalACell:
             with backend.name_scope('block_5'):
                 x5 = SeparableConvBlock(self.filters, block_id='normal_left5_%s' % self.block_id)(h)
                 x5 = layers.add([x5, h], name='normal_add_5_%s' % self.block_id)
+
+            if x2.shape[-2] < p.shape[-2]:
+                adds = p.shape[-2] - x2.shape[-2]
+                x2 = layers.ZeroPadding1D((0, adds))(x2)
 
             x = layers.concatenate([p, x1, x2, x3, x4, x5],
                                    name='normal_concat_%s' % self.block_id)
@@ -209,6 +218,9 @@ class ReductionACell:
                 x1_2 = SeparableConvBlock(self.filters, 7,
                                           strides=2,
                                           block_id='reduction_right1_%s' % self.block_id)(p)
+
+                x1_1, x1_2 = padding(x1_1, x1_2)
+
                 x1 = layers.add([x1_1, x1_2], name='reduction_add_1_%s' % self.block_id)
 
             with backend.name_scope('block_2'):
@@ -218,6 +230,9 @@ class ReductionACell:
                 x2_2 = SeparableConvBlock(self.filters, 7,
                                           strides=2,
                                           block_id='reduction_right2_%s' % self.block_id)(p)
+
+                x2_1, x2_2 = padding(x2_1, x2_2)
+
                 x2 = layers.add([x2_1, x2_2], name='reduction_add_2_%s' % self.block_id)
 
             with backend.name_scope('block_3'):
@@ -228,6 +243,9 @@ class ReductionACell:
                 x3_2 = SeparableConvBlock(self.filters, 5,
                                           strides=2,
                                           block_id='reduction_right3_%s' % self.block_id)(p)
+
+                x3_1, x3_2 = padding(x3_1, x3_2)
+
                 x3 = layers.add([x3_1, x3_2], name='reduction_add3_%s' % self.block_id)
 
             with backend.name_scope('block_4'):
@@ -235,6 +253,9 @@ class ReductionACell:
                                              strides=1,
                                              padding='same',
                                              name='reduction_left4_%s' % self.block_id)(x1)
+
+                x2, x4 = padding(x2, x4)
+
                 x4 = layers.add([x2, x4])
 
             with backend.name_scope('block_5'):
@@ -242,16 +263,30 @@ class ReductionACell:
                 x5_2 = layers.MaxPooling1D(3, strides=2,
                                            padding='valid',
                                            name='reduction_right5_%s' % self.block_id)(h3)
+
+                x5_1, x5_2 = padding(x5_1, x5_2)
+
                 x5 = layers.add([x5_1, x5_2], name='reduction_add4_%s' % self.block_id)
+
+            x3 = layers.ZeroPadding1D((0, 1))(x3)
 
             x = layers.concatenate([x2, x3, x4, x5], name='reduction_concat_%s' % self.block_id)
 
         return x, ip
 
 
+def padding(x1, x2):
+    if x1.shape[-2] > x2.shape[-2]:
+        adds = x1.shape[-2] - x2.shape[-2]
+        x2 = layers.ZeroPadding1D((0, adds))(x2)
+    elif x2.shape[-2] > x1.shape[-2]:
+        adds = x2.shape[-2] - x1.shape[-2]
+        x1 = layers.ZeroPadding1D((0, adds))(x1)
+    return x1, x2
+
 
 class BaseNASNet(DLModelBuilder):
-    def __init__(self, input_shape=(256*3, 1), penultimate_filters=4032, num_blocks=6, stem_block_filters=96,
+    def __init__(self, input_shape=(256 * 3, 1), penultimate_filters=4032, num_blocks=6, stem_block_filters=96,
                  skip_reduction=True, filter_multiplier=2, num_classes=6, classifier_activation='softmax'):
         self.input_shape = input_shape
         self.penultimate_filters = penultimate_filters
@@ -269,7 +304,7 @@ class BaseNASNet(DLModelBuilder):
     def get_model(self):
         inputs = layers.Input(shape=self.input_shape)
 
-        if self.penultimate_filters % (24 * (self.filter_multiplier**2)) != 0:
+        if self.penultimate_filters % (24 * (self.filter_multiplier ** 2)) != 0:
             raise ValueError(
                 'For NASNet-A models, the `penultimate_filters` must be a multiple '
                 'of 24 * (`filter_multiplier` ** 2). Current value: %d' %
@@ -289,7 +324,7 @@ class BaseNASNet(DLModelBuilder):
         x = layers.BatchNormalization(momentum=0.9997, epsilon=1e-3, name='stem_bn1')(x)
 
         p = None
-        x, p = ReductionACell(filters // (self.filter_multiplier**2), block_id='stem_1')(x, p)
+        x, p = ReductionACell(filters // (self.filter_multiplier ** 2), block_id='stem_1')(x, p)
         x, p = ReductionACell(filters // self.filter_multiplier, block_id='stem_2')(x, p)
 
         for i in range(self.num_blocks):
@@ -302,13 +337,14 @@ class BaseNASNet(DLModelBuilder):
         for i in range(self.num_blocks):
             x, p = NormalACell(filters * self.filter_multiplier, block_id='%d' % (self.num_blocks + i + 1))(x, p)
 
-        x, p0 = ReductionACell(filters * self.filter_multiplier**2,
-                               block_id='reduce_%d' % (2 * self.num_blocks))
+        x, p0 = ReductionACell(filters * self.filter_multiplier ** 2,
+                               block_id='reduce_%d' % (2 * self.num_blocks))(x, p)
 
         p = p0 if not self.skip_reduction else p
 
         for i in range(self.num_blocks):
-            x, p = NormalACell(filters * self.filter_multiplier**2, block_id='%d' % (2 * self.num_blocks + i + 1))(x, p)
+            x, p = NormalACell(filters * self.filter_multiplier ** 2, block_id='%d' % (2 * self.num_blocks + i + 1))(x,
+                                                                                                                     p)
 
         x = layers.Activation('relu')(x)
 
@@ -320,7 +356,8 @@ class BaseNASNet(DLModelBuilder):
         return model
 
 
-def __NASNet(type, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+def __NASNet(type, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+             classifier_activation='softmax'):
     if input_shape is None:
         input_shape = (256 * 3, 1)
 
@@ -362,17 +399,20 @@ def __NASNet(type, include_top=True, weights='hasc', input_shape=None, pooling=N
     return model
 
 
-def NASNetLarge(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+def NASNetLarge(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                classifier_activation='softmax'):
     model = __NASNet('large', include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
-def NASNetMobile(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+
+def NASNetMobile(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                 classifier_activation='softmax'):
     model = __NASNet('mobile', include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
 if __name__ == "__main__":
-    model = NASNetMobile(include_top=True, weights=None,
-                         pooling=None)
+    model = NASNetLarge(include_top=False, weights=None,
+                        pooling=None)
 
     model.summary()
