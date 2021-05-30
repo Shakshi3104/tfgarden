@@ -3,7 +3,7 @@ import os
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
 
-from base import DLModelBuilder
+from .base import DLModelBuilder
 
 
 def _depth(v, divisor=8, min_value=None):
