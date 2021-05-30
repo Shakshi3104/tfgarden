@@ -13,7 +13,7 @@ By default, it loads weights pre-trained on HASC. Check 'weights' for other opti
 The default input size for this model is 768 (256 * 3).
 
 ### Arguments
-- include_top : whether to include the global average pooling layer and the fully-connected layer at the top of the network.
+- include_top : whether to include the fully-connected layer at the top of the network.
 - weights : one of 'None' (he_normal initialization), 'hasc' (pre-training on HASC), or the path to the weights file to be loaded.
 - input_shape : optional shape tuple, default `(768, 1)` (with channels_last data format).
 - pooling : optional pooling mode for feature extraction when `include_top` is False.
@@ -41,7 +41,7 @@ By default, it loads weights pre-trained on HASC. Check 'weights' for other opti
 The default input size for this model is 768 (256 * 3).
 
 ### Arguments
-- include_top : whether to include the global average pooling layer and the fully-connected layer at the top of the network.
+- include_top : whether to include the fully-connected layer at the top of the network.
 - weights : one of 'None' (he_normal initialization), 'hasc' (pre-training on HASC), or the path to the weights file to be loaded.
 - input_shape : optional shape tuple, default `(768, 1)` (with channels_last data format).
 - pooling : optional pooling mode for feature extraction when `include_top` is False.
@@ -69,7 +69,7 @@ By default, it loads weights pre-trained on HASC. Check 'weights' for other opti
 The default input size for this model is 768 (256 * 3).
 
 ### Arguments
-- include_top : whether to include the global average pooling layer and the fully-connected layer at the top of the network.
+- include_top : whether to include the fully-connected layer at the top of the network.
 - weights : one of 'None' (he_normal initialization), 'hasc' (pre-training on HASC), or the path to the weights file to be loaded.
 - input_shape : optional shape tuple, default `(768, 1)` (with channels_last data format).
 - pooling : optional pooling mode for feature extraction when `include_top` is False.
@@ -97,7 +97,7 @@ By default, it loads weights pre-trained on HASC. Check 'weights' for other opti
 The default input size for this model is 768 (256 * 3).
 
 ### Arguments
-- include_top : whether to include the global average pooling layer and the fully-connected layer at the top of the network.
+- include_top : whether to include the fully-connected layer at the top of the network.
 - weights : one of 'None' (he_normal initialization), 'hasc' (pre-training on HASC), or the path to the weights file to be loaded.
 - input_shape : optional shape tuple, default `(768, 1)` (with channels_last data format).
 - pooling : optional pooling mode for feature extraction when `include_top` is False.
@@ -125,7 +125,7 @@ By default, it loads weights pre-trained on HASC. Check 'weights' for other opti
 The default input size for this model is 768 (256 * 3).
 
 ### Arguments
-- include_top : whether to include the global average pooling layer and the fully-connected layer at the top of the network.
+- include_top : whether to include the fully-connected layer at the top of the network.
 - weights : one of 'None' (he_normal initialization), 'hasc' (pre-training on HASC), or the path to the weights file to be loaded.
 - input_shape : optional shape tuple, default `(768, 1)` (with channels_last data format).
 - pooling : optional pooling mode for feature extraction when `include_top` is False.
