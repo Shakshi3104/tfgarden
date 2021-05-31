@@ -275,7 +275,7 @@ def __MobileNetV3(type, include_top=True, weights='hasc', input_shape=None, pool
 
     if type == 'small':
         model = __MobileNetV3Small(input_shape, alpha, minimalistic, classes, 0.2, classifier_activation)
-    elif type == 'larget':
+    elif type == 'large':
         model = __MobileNetV3Large(input_shape, alpha, minimalistic, classes, 0.2, classifier_activation)
 
     if weights is not None:
