@@ -1,6 +1,6 @@
 # NASNet
 
-## applications.nasnet.MNASNetLarge
+## applications.nasnet.NASNetLarge
 ```python
 applications.nasnet.NASNetLarge(
     include_top=True, weights='hasc', input_shape=None, pooling=None, 
@@ -29,7 +29,7 @@ The default input size for this model is 768 (256 * 3).
 ### Returns
 - `tensorflow.keras.Model` instance.
 
-## applications.nasnet.MNASNetMobile
+## applications.nasnet.NASNetMobile
 ```python
 applications.nasnet.NASNetMobile(
     include_top=True, weights='hasc', input_shape=None, pooling=None, 
