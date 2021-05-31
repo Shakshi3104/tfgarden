@@ -2,6 +2,7 @@ from .densenet import *
 from .efficientnet import *
 from .efficientnet_lite import *
 from .inception_resnet_v2 import *
+from .inception_v3 import *
 from .mnasnet import *
 from .mobilenet import *
 from .mobilenet_v2 import *
@@ -13,6 +14,7 @@ from .vgg11 import *
 from .vgg13 import *
 from .vgg16 import *
 from .vgg19 import *
+from .xception import *
 
 
 __all__ = [
@@ -29,4 +31,6 @@ __all__ = [
     "PyramidNet18", "PyramidNet34", "PyramidNet50", "PyramidNet101", "PyramidNet152",
     "ResNet16", "ResNet18", "ResNet34",
     "VGG11", "VGG13", "VGG16", "VGG19",
+    "InceptionV3",
+    "Xception",
 ]
