@@ -212,7 +212,7 @@ def InceptionV3(include_top=True, weights='hasc', input_shape=None, pooling=None
 
     if weights is not None:
         if weights in ['hasc', "HASC"]:
-            weights = 'weights/mobilenet/mobilenet_hasc_weights_{}.hdf5'.format(int(input_shape[0] / 3))
+            weights = 'weights/inceptionv3/inceptionv3_hasc_weights_{}.hdf5'.format(int(input_shape[0] / 3))
 
         # hasc or weights fileで初期化
         if os.path.exists(weights):
