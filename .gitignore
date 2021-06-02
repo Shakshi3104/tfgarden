@@ -1,4 +1,4 @@
 /weights/
-/tfgarden/applications/pyramidtest.py
-/tfgarden/applications/hasetest.py
+/src/tfgarden/applications/pyramidtest.py
+/src/tfgarden/applications/hasetest.py
 /.idea/

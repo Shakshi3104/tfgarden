@@ -6,7 +6,7 @@ setuptools.setup(
     author="Shakshi3104",
     description="TensorFlow model Garden for HASC",
     url="https://github.com/Shakshi3104/tfgarden",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(where='src'),
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
@@ -17,5 +17,6 @@ setuptools.setup(
         'Programming Language :: Python :: 3 :: Only',
     ],
     python_requires=">=3.6, <4",
-    install_requires=["tensorflow"]
+    install_requires=["tensorflow"],
+    package_dir={'': 'src'},
 )
