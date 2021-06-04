@@ -158,14 +158,14 @@ def __ResNet(number, include_top=True, weights='hasc', input_shape=None, pooling
                          ' as true, `classes` should be 6')
 
     if number == 18:
-        resnet = BaseResNet(layers=[16, 32, 64, 96], repeats=[2, 2, 2, 2], input_shape=input_shape,
+        resnet = BaseResNet(layers=[64, 128, 256, 512], repeats=[2, 2, 2, 2], input_shape=input_shape,
                             num_classes=classes, classifier_activation=classifier_activation)
     elif number == 16:
         # ResNet34-half implemented by t-hase
-        resnet = BaseResNet(layers=[16, 32], repeats=[3, 4], input_shape=input_shape,
+        resnet = BaseResNet(layers=[64, 128], repeats=[3, 4], input_shape=input_shape,
                             num_classes=classes, classifier_activation=classifier_activation)
     elif number == 34:
-        resnet = BaseResNet(layers=[16, 32, 64, 96], repeats=[3, 4, 6, 3], input_shape=input_shape,
+        resnet = BaseResNet(layers=[64, 128, 256, 512], repeats=[3, 4, 6, 3], input_shape=input_shape,
                             num_classes=classes, classifier_activation=classifier_activation)
 
     model = resnet()
