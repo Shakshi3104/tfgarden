@@ -47,15 +47,15 @@ def VGG(number, include_top=True, weights='hasc', input_shape=None, pooling=None
     if not include_top:
         if pooling is None:
             # topを削除する
-            model = Model(inputs=model.input, outputs=model.layers[-7].output)
+            model = Model(inputs=model.input, outputs=model.layers[-5].output)
         elif pooling == 'avg':
-            y = GlobalAveragePooling1D()(model.layers[-7].output)
+            y = GlobalAveragePooling1D()(model.layers[-5].output)
             model = Model(inputs=model.input, outputs=y)
         elif pooling == 'max':
-            y = GlobalMaxPooling1D()(model.layers[-7].output)
+            y = GlobalMaxPooling1D()(model.layers[-5].output)
             model = Model(inputs=model.input, outputs=y)
         else:
             print("Not exist pooling option: {}".format(pooling))
-            model = Model(inputs=model.input, outputs=model.layers[-7].output)
+            model = Model(inputs=model.input, outputs=model.layers[-5].output)
 
     return model
