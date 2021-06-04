@@ -30,22 +30,22 @@ class BaseVGG19(DLModelBuilder):
 
     def get_model(self):
         inputs = Input(shape=self.input_shape)
-        x = ConvBlock(2, 16, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+        x = ConvBlock(2, 64, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(inputs)
-        x = ConvBlock(2, 32, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+        x = ConvBlock(2, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(4, 64, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+        x = ConvBlock(4, 256, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(4, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+        x = ConvBlock(4, 512, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(4, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+        x = ConvBlock(4, 512, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
                       kernel_initializer=self.kernel_initializer)(x)
 
         x = Flatten()(x)
-        x = Dense(1024, activation='relu', kernel_initializer=self.kernel_initializer)(x)
-        x = Dropout(0.5)(x)
-        x = Dense(1024, activation='relu', kernel_initializer=self.kernel_initializer)(x)
-        x = Dropout(0.5)(x)
+        x = Dense(4096, activation='relu', kernel_initializer=self.kernel_initializer)(x)
+        # x = Dropout(0.5)(x)
+        x = Dense(4096, activation='relu', kernel_initializer=self.kernel_initializer)(x)
+        # x = Dropout(0.5)(x)
         y = Dense(self.num_classes, activation=self.classifier_activation)(x)
 
         model = Model(inputs=inputs, outputs=y)
