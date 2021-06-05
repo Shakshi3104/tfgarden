@@ -1,5 +1,5 @@
 # TensorFlow model Garden for HASC
-The TensorFlow model Garden (TensorFlow CNN Collections) for HASC is the repository of CNN models implemented for human activity recognition (HASC), like [`tensorflow.keras.applications`](https://www.tensorflow.org/api_docs/python/tf/keras/applications).
+The TensorFlow model Garden for HASC is the repository of CNN models implemented for human activity recognition (HASC), like [`tensorflow.keras.applications`](https://www.tensorflow.org/api_docs/python/tf/keras/applications).
 
 The models implemented here can also be used as a source domain for sensor-based task (e.g. sidewalk surface type estimation).
 
@@ -27,49 +27,8 @@ pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1
 - [`pyramidnet`](reference/pyramidnet.md#pyramidnet) module : PyramidNet models for HASC for Keras.
 - [`efficientnet_lite`](reference/efficientnet_lite.md#efficientnet-lite) module : EfficientNet-Lite models for HASC for Keras.
 
-
-## Accuracy 
-| model | accuracy |
-|:-----:|:--------:|
-| VGG11 | 85.5 % |
-| VGG13 | 83.9 % |
-| VGG16 | 84.1 % |
-| VGG19 | 84.0 % |
-| ResNet16 | 79.3 % |
-| ResNet18 | 80.7 % |
-| PyramidNet18 | 86.2 % |
-| PyramidNet34 | 86.8 % |
-| PyramidNet50 | 86.1 % |
-| PyramidNet101 | 87.1 % |
-| PyramidNet152 | 87.7 % |
-| EfficientNetB0 | 89.9 % |
-| EfficientNetB1 | 88.5 % |
-| EfficientNetB2 | 89.6 % |
-| EfficientNetB3 | 90.1 % |
-| EfficientNetB4 | 88.9 % |
-| EfficientNetB5 | 89.9 % |
-| EfficientNetB6 | 88.0 % |
-| EfficientNetB7 | 89.2 % |
-| EfficientNet_lite0 | 87.4 % |
-| EfficientNet_lite1 | 88.8 % |
-| EfficientNet_lite2 | 84.5 % |
-| EfficientNet_lite3 | 87.4 % |
-| EfficientNet_lite4 | 87.8 % |
-
-
-#### Training Conditions
-
-|  | condition |
-|:---|:---:|
-| Number of data | 25,130 |
-| Number of subject | 183 |
-| Optimizer | Adam |
-| Learning rate | 1e-3 |
-| Batch size | 20 |
-| Epochs | 200 |
-
-## HASC
-**HASC Corpus** is the dataset of human activity recognition collected by [human activity sensing consortium (HASC)](http://hasc.jp).
+## Performance
+Under construction...
 
 ## Dependency
 - `tensorflow >= 2.0`
