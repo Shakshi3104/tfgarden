@@ -124,7 +124,8 @@ def Xception(include_top=True, weights='hasc', input_shape=None, pooling=None, c
 
     if weights is not None:
         if weights in ['hasc', "HASC"]:
-            weights = 'weights/xception/xception_hasc_weights_{}.hdf5'.format(int(input_shape[0] / 3))
+            weights = 'weights/xception/xception_hasc_weights_{}_{}.hdf5'.format(int(input_shape[0]),
+                                                                                 int(input_shape[1]))
 
         # hasc or weights fileで初期化
         if os.path.exists(weights):
