@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="tfgarden",
-    version="0.3.2",
+    version="0.3.3",
     author="Shakshi3104",
     description="TensorFlow model Garden for HASC",
     url="https://github.com/Shakshi3104/tfgarden",
