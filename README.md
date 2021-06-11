@@ -4,9 +4,6 @@ The TensorFlow model Garden for HASC (**tfgarden**) is the repository of CNN mod
 The models implemented here can also be used as a source domain for sensor-based task (e.g. sidewalk surface type estimation).
 
 ## Modules
-TensorFlow CNN Collections for HASC are canned architecture with pre-trained weights.
-
-pre-trained weights are uploaded [here](https://drive.google.com/drive/folders/1HMDMDz91laNvsyaTvAMgXzX-pIjDMpwy?usp=sharing).
 
 - [`densenet`](reference/densenet.md#densenet) module: DenseNet models for HASC for Keras.
 - [`efficientnet`](reference/efficientnet.md#efficientnet) module : EfficientNet models for HASC for Keras.
