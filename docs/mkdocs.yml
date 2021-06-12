@@ -4,6 +4,10 @@ site_description: Documentation of TensorFlow model Garden for HASC
 repo_name: 'GitHub'
 repo_url: https://github.com/Shakshi3104/tfgarden
 
+nav:
+    - Home: index.md
+    - Installation: install.md
+
 # plugins:
 #     - search
 #         lang:
