@@ -7,6 +7,8 @@ repo_url: https://github.com/Shakshi3104/tfgarden
 nav:
     - Home: index.md
     - Installation: install.md
+    - Quickstart: quickstart.md
+    - Reference: reference.md
 
 # plugins:
 #     - search

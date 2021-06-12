@@ -13,8 +13,8 @@ The TensorFlow model Garden for HASC (tfgarden) is the repository of CNN models 
 ### [Installation](install.md)
 Describes how to install tfgarden
 
-### Quickstart
+### [Quickstart](quickstart.md)
 Show simple example
 
-### Reference
+### [Reference](reference.md)
 Show the reference of the implemented models
