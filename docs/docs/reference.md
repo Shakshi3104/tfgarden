@@ -51,7 +51,7 @@
 - [`VGG16(...)`](reference/vgg.md#applicationsvgg16vgg16) : Instantiates the VGG16 architecture.
 - [`VGG19(...)`](reference/vgg.md#applicationsvgg19vgg19) : Instantiates the VGG19 architecture.
 - [`Xception(...)`](reference/xception.md#applicationsxceptionxception) : Instantiates the Xception architecture.
-- [`MnasNet(...)`](reference/mnasnet.md#applicationsmnasnetmnasnet) : Instantiates the MnasNet-A model.
+- [`MnasNet(...)`](reference/mnasnet.md#applicationsmnasnetmnasnet) : Instantiates the MnasNet-A1 model.
 - [`PyramidNet18(...)`](reference/pyramidnet.md#applicationspyramidnetpyramidnet18) : Instantiates the PyramidNet18 architecture.
 - [`PyramidNet34(...)`](reference/pyramidnet.md#applicationspyramidnetpyramidnet34) : Instantiates the PyramidNet34 architecture.
 - [`PyramidNet50(...)`](reference/pyramidnet.md#applicationspyramidnetpyramidnet50) : Instantiates the PyramidNet50 architecture.
