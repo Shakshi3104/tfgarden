@@ -17,6 +17,5 @@ setuptools.setup(
         'Programming Language :: Python :: 3 :: Only',
     ],
     python_requires=">=3.6, <4",
-    install_requires=["tensorflow"],
     package_dir={'': 'src'},
 )
