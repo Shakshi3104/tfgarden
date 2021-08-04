@@ -41,7 +41,7 @@ def VGG13(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
               name="fc1")(x)
     x = Dense(4096, activation="relu", kernel_initializer="he_normal",
               name="fc2")(x)
-    y = Dense(classes, activation=classifier_activation, name="prediction")(x)
+    y = Dense(classes, activation=classifier_activation, name="predictions")(x)
 
     model = Model(inputs=inputs, outputs=y)
 
