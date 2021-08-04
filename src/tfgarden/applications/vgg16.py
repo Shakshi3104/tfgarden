@@ -31,11 +31,11 @@ def VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
                          ' as true, `classes` should be 6')
 
     inputs = Input(shape=input_shape)
-    x = ConvBlock(2, 64)(inputs)
-    x = ConvBlock(2, 128)(x)
-    x = ConvBlock(3, 256)(x)
-    x = ConvBlock(3, 512)(x)
-    x = ConvBlock(3, 512)(x)
+    x = ConvBlock(2, 64, block_id=1)(inputs)
+    x = ConvBlock(2, 128, block_id=2)(x)
+    x = ConvBlock(3, 256, block_id=3)(x)
+    x = ConvBlock(3, 512, block_id=4)(x)
+    x = ConvBlock(3, 512, block_id=5)(x)
 
     x = Flatten()(x)
     x = Dense(4096, activation="relu", kernel_initializer="he_normal",

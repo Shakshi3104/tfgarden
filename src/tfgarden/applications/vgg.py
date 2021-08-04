@@ -3,7 +3,7 @@ from tensorflow.keras.layers import Conv1D, MaxPooling1D
 
 class ConvBlock:
     def __init__(self, repeat, filters, kernel_size=3, strides=1, padding='same', activation='relu',
-                 kernel_initializer='he_normal', pool_size=2):
+                 kernel_initializer='he_normal', pool_size=2, block_id=0):
         """
         ConvBlock for VGG
             repeat: the number of Conv1D
@@ -23,11 +23,13 @@ class ConvBlock:
         self.activation = activation
         self.kernel_initializer = kernel_initializer
         self.pool_size = pool_size
+        self.block_id = block_id
 
     def __call__(self, x):
-        for _ in range(0, self.repeat):
+        for i in range(0, self.repeat):
             x = Conv1D(self.filters, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
-                       activation=self.activation, kernel_initializer=self.kernel_initializer)(x)
+                       activation=self.activation, kernel_initializer=self.kernel_initializer,
+                       name='block{}_{}'.format(self.block_id, i+1))(x)
 
-        x = MaxPooling1D(pool_size=self.pool_size, padding=self.padding)(x)
+        x = MaxPooling1D(pool_size=self.pool_size, padding=self.padding, name="block{}_pool".format(self.block_id))(x)
         return x
