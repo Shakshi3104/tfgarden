@@ -6,8 +6,9 @@ from tensorflow.keras.models import Model
 
 
 class Shortcut:
-    def __init__(self, kernel_initializer='he_normal'):
+    def __init__(self, kernel_initializer='he_normal', block_name=""):
         self.kernel_initializer = kernel_initializer
+        self.block_name = block_name
 
     def __call__(self, x):
         inputs, residual = x
@@ -18,69 +19,75 @@ class Shortcut:
         shortcut = inputs
         if stride > 1 or not equal_channels:
             shortcut = Conv1D(int(residual.shape[2]), 1, strides=int(stride),
-                              kernel_initializer=self.kernel_initializer, padding='valid')(inputs)
+                                              kernel_initializer=self.kernel_initializer,
+                                              padding='valid', name='{}_shortcut'.format(self.block_name))(inputs)
 
         return add([shortcut, residual])
 
 
 class BasicBlock:
-    def __init__(self, nb_fil, strides, activation='relu', kernel_initializer='he_normal'):
+    def __init__(self, nb_fil, strides, activation='relu', kernel_initializer='he_normal', block_name=""):
         self.nb_fil = nb_fil
         self.strides = strides
 
         self.activation = activation
         self.kernel_initializer = kernel_initializer
 
+        self.block_name = block_name
+
     def __call__(self, x):
         inputs = x
 
-        x = BatchNormalization()(x)
-        x = Activation(self.activation)(x)
-        x = Conv1D(self.nb_fil, 3, strides=self.strides,
-                   kernel_initializer=self.kernel_initializer, padding='same')(x)
+        x = BatchNormalization(name="{}_basic_bn_1".format(self.block_name))(x)
+        x = Activation(self.activation, name="{}_basic_act_1".format(self.block_name))(x)
+        x = Conv1D(self.nb_fil, 3, strides=1, kernel_initializer=self.kernel_initializer,
+                                   padding='same', name="{}_basic_conv_1".format(self.block_name))(x)
+        x = BatchNormalization(name="{}_basic_bn_2".format(self.block_name))(x)
+        x = Activation(self.activation, name="{}_basic_act_2".format(self.block_name))(x)
+        x = Conv1D(self.nb_fil, 3, strides=1, kernel_initializer=self.kernel_initializer,
+                                   padding='same', name="{}_basic_conv_2".format(self.block_name))(x)
 
-        x = BatchNormalization()(x)
-        x = Activation(self.activation)(x)
-        x = Conv1D(self.nb_fil, 3, strides=1,
-                   kernel_initializer=self.kernel_initializer, padding='same')(x)
-
-        x = Shortcut(kernel_initializer=self.kernel_initializer)([inputs, x])
+        x = Shortcut(kernel_initializer=self.kernel_initializer, block_name=self.block_name)([inputs, x])
         return x
 
 
 class Bottleneck:
-    def __init__(self, nb_fil, strides, activation='relu', kernel_initializer='he_normal'):
+    def __init__(self, nb_fil, strides, activation='relu', kernel_initializer='he_normal', block_name=""):
         self.nb_fil = nb_fil
         self.strides = strides
 
         self.activation = activation
         self.kernel_initializer = kernel_initializer
 
+        self.block_name = block_name
+
     def __call__(self, x):
         inputs = x
 
-        x = BatchNormalization()(x)
-        x = Activation(self.activation)(x)
+        x = BatchNormalization(name="{}_bottleneck_bn_1".format(self.block_name))(x)
+        x = Activation(self.activation, name="{}_bottleneck_act_1".format(self.block_name))(x)
         x = Conv1D(int(self.nb_fil / 4), 1, strides=self.strides,
-                   kernel_initializer=self.kernel_initializer, padding='same')(x)
+                                   kernel_initializer=self.kernel_initializer, padding='same',
+                                   name="{}_bottleneck_conv_1".format(self.block_name))(x)
 
-        x = BatchNormalization()(x)
-        x = Activation(self.activation)(x)
+        x = BatchNormalization(name="{}_bottleneck_bn_2".format(self.block_name))(x)
+        x = Activation(self.activation, name="{}_bottleneck_act_2".format(self.block_name))(x)
         x = Conv1D(int(self.nb_fil / 4), 3, strides=self.strides,
-                   kernel_initializer=self.kernel_initializer, padding='same')(x)
+                                   kernel_initializer=self.kernel_initializer, padding="same",
+                                   name="{}_bottleneck_conv_2".format(self.block_name))(x)
 
-        x = BatchNormalization()(x)
-        x = Activation(self.activation)(x)
-        x = Conv1D(self.nb_fil, 1, strides=1,
-                   kernel_initializer=self.kernel_initializer, padding='same')(x)
+        x = BatchNormalization(name="{}_bottleneck_bn_3".format(self.block_name))(x)
+        x = Activation(self.activation, name="{}_bottleneck_act_3".format(self.block_name))(x)
+        x = Conv1D(self.nb_fil, 1, strides=self.strides, kernel_initializer=self.kernel_initializer,
+                                   padding="same", name="{}_bottleneck_conv_3".format(self.block_name))(x)
 
-        x = Shortcut(kernel_initializer=self.kernel_initializer)([inputs, x])
-
+        x = Shortcut(kernel_initializer=self.kernel_initializer, block_name=self.block_name)([inputs, x])
         return x
 
 
 class ResidualBlock:
-    def __init__(self, nb_fil, repeats, block, is_first=False, activation='relu', kernel_initializer='he_normal'):
+    def __init__(self, nb_fil, repeats, block, is_first=False, activation='relu', kernel_initializer='he_normal',
+                 block_name=""):
         self.nb_fil = nb_fil
         self.repeats = repeats
         self.is_first = is_first
@@ -89,14 +96,17 @@ class ResidualBlock:
         self.activation = activation
         self.kernel_initializer = kernel_initializer
 
+        self.block_name = block_name
+
     def __call__(self, x):
         if not self.is_first:
-            x = self.block(self.nb_fil, 2, self.activation, self.kernel_initializer)(x)
+            x = self.block(self.nb_fil, 2, self.activation, self.kernel_initializer, block_name=self.block_name + "_1")(x)
         else:
-            x = self.block(self.nb_fil, 1, self.activation, self.kernel_initializer)(x)
+            x = self.block(self.nb_fil, 1, self.activation, self.kernel_initializer, block_name=self.block_name + "_1")(x)
 
-        for _ in range(1, self.repeats):
-            x = self.block(self.nb_fil, 1, self.activation, self.kernel_initializer)(x)
+        for i in range(1, self.repeats):
+            x = self.block(self.nb_fil, 1, self.activation, self.kernel_initializer,
+                           block_name=self.block_name + "_{}".format(i + 1))(x)
 
         return x
 
@@ -122,20 +132,21 @@ def __ResNet(number, include_top=True, weights='hasc', input_shape=None, pooling
 
     assert len(layers) == len(repeats), 'incorrect'
 
-    inputs = Input(input_shape)
-    x = Conv1D(32, 7, strides=2, padding='same', kernel_initializer="he_normal")(inputs)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
+    inputs = Input(shape=input_shape)
 
-    x = ResidualBlock(nb_fil=layers[0], repeats=repeats[0], block=BasicBlock, is_first=True,
-                      kernel_initializer="he_normal")(x)
+    x = Conv1D(32, 7, strides=2, padding='same', kernel_initializer="he_normal", name="bottom_conv")(
+        inputs)
+    x = BatchNormalization(name="bottom_conv_bn")(x)
+    x = Activation('relu', name="bottom_conv_relu")(x)
 
-    for layer, repeat in zip(layers[1:], repeats[1:]):
-        x = ResidualBlock(layer, repeat, BasicBlock, kernel_initializer="he_normal")(x)
+    x = ResidualBlock(layers[0], repeats=repeats[0], block=BasicBlock, is_first=True, block_name="res1")(x)
+
+    for i, (layer, repeat) in enumerate(zip(layers[1:], repeats[1:])):
+        x = ResidualBlock(layer, repeat, BasicBlock, block_name="res{}".format(i + 2))(x)
 
     x = GlobalAveragePooling1D()(x)
     x = Flatten()(x)
-    y = Dense(classes, activation=classifier_activation)(x)
+    y = Dense(classes, activation=classifier_activation, name='predictions')(x)
 
     model = Model(inputs=inputs, outputs=y)
 
