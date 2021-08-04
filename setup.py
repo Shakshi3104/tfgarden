@@ -4,7 +4,7 @@ setuptools.setup(
     name="tfgarden",
     version="0.3.4",
     author="Shakshi3104",
-    description="TensorFlow model Garden for HASC",
+    description="TensorFlow model Garden for Human Activity Recognition",
     url="https://github.com/Shakshi3104/tfgarden",
     packages=setuptools.find_packages(where='src'),
     classifiers=[
