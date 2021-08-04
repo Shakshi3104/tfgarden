@@ -3,8 +3,6 @@ import os
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
 
-from .base import DLModelBuilder
-
 
 class ConvBlock:
     def __init__(self, growth_rate, name):
@@ -81,49 +79,7 @@ class DenseBlock:
         return x
 
 
-class BaseDenseNet(DLModelBuilder):
-    def __init__(self, blocks: list, input_shape=(256 * 3, 1), num_classes=6, classifier_activation="softmax"):
-        """
-        blocks: numbers of building blocks for the four dense layers.
-        """
-        super(BaseDenseNet, self).__init__(None, None, None, None, input_shape, num_classes)
-        self.blocks = blocks
-        self.classifier_activation = classifier_activation
-
-    def __call__(self, *args, **kwargs):
-        model = self.get_model()
-        return model
-
-    def get_model(self):
-        inputs = layers.Input(shape=self.input_shape)
-
-        x = layers.ZeroPadding1D(padding=(3, 3))(inputs)
-        x = layers.Conv1D(64, 7, strides=2, use_bias=False, name='conv1/conv')(x)
-        x = layers.BatchNormalization(epsilon=1.001e-5, name='conv1/bn')(x)
-        x = layers.Activation('relu', name='conv1/relu')(x)
-        x = layers.ZeroPadding1D(padding=(1, 1))(x)
-        x = layers.MaxPooling1D(3, strides=2, name='pool1')(x)
-
-        x = DenseBlock(self.blocks[0], name='conv2')(x)
-        x = TransitionBlock(0.5, name='pool2')(x)
-        x = DenseBlock(self.blocks[1], name='conv3')(x)
-        x = TransitionBlock(0.5, name='pool3')(x)
-        x = DenseBlock(self.blocks[2], name='conv4')(x)
-        x = TransitionBlock(0.5, name='pool4')(x)
-        x = DenseBlock(self.blocks[3], name='conv5')(x)
-
-        x = layers.BatchNormalization(epsilon=1.001e-5, name='bn')(x)
-        x = layers.Activation('relu', name='relu')(x)
-
-        x = layers.GlobalAveragePooling1D(name='avg_pool')(x)
-        y = layers.Dense(self.num_classes, activation=self.classifier_activation, name='predictions')(x)
-
-        # Create model.
-        model = Model(inputs, y)
-        return model
-
-
-def __DenseNet(number, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+def DenseNet(number, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
     if input_shape is None:
         input_shape = (256 * 3, 1)
 
@@ -131,15 +87,41 @@ def __DenseNet(number, include_top=True, weights='hasc', input_shape=None, pooli
         raise ValueError('If using `weights` as `"hasc"` with `include_top`'
                          ' as true, `classes` should be 6')
 
-    # Build model
+    # number of blocks
     if number == 121:
-        densenet = BaseDenseNet([6, 12, 24, 16], input_shape, classes, classifier_activation)
+        blocks = [6, 12, 24, 16]
     elif number == 169:
-        densenet = BaseDenseNet([6, 12, 32, 32], input_shape, classes, classifier_activation)
+        blocks = [6, 12, 32, 32]
     elif number == 201:
-        densenet = BaseDenseNet([6, 12, 48, 32], input_shape, classes, classifier_activation)
+        blocks = [6, 12, 48, 32]
+    else:
+        raise ValueError('`number` should be 121, 169 or 201')
 
-    model = densenet()
+    inputs = layers.Input(shape=input_shape)
+
+    x = layers.ZeroPadding1D(padding=(3, 3))(inputs)
+    x = layers.Conv1D(64, 7, strides=2, use_bias=False, name='conv1/conv')(x)
+    x = layers.BatchNormalization(epsilon=1.001e-5, name='conv1/bn')(x)
+    x = layers.Activation('relu', name='conv1/relu')(x)
+    x = layers.ZeroPadding1D(padding=(1, 1))(x)
+    x = layers.MaxPooling1D(3, strides=2, name='pool1')(x)
+
+    x = DenseBlock(blocks[0], name='conv2')(x)
+    x = TransitionBlock(0.5, name='pool2')(x)
+    x = DenseBlock(blocks[1], name='conv3')(x)
+    x = TransitionBlock(0.5, name='pool3')(x)
+    x = DenseBlock(blocks[2], name='conv4')(x)
+    x = TransitionBlock(0.5, name='pool4')(x)
+    x = DenseBlock(blocks[3], name='conv5')(x)
+
+    x = layers.BatchNormalization(epsilon=1.001e-5, name='bn')(x)
+    x = layers.Activation('relu', name='relu')(x)
+
+    x = layers.GlobalAveragePooling1D(name='avg_pool')(x)
+    y = layers.Dense(classes, activation=classifier_activation, name='predictions')(x)
+
+    # Create model.
+    model_ = Model(inputs, y)
 
     if weights is not None:
         if weights in ['hasc', "HASC"]:
@@ -149,7 +131,7 @@ def __DenseNet(number, include_top=True, weights='hasc', input_shape=None, pooli
         # hasc or weights fileで初期化
         if os.path.exists(weights):
             print("Load weights from {}".format(weights))
-            model.load_weights(weights)
+            model_.load_weights(weights)
         else:
             print("Not exist weights: {}".format(weights))
 
@@ -157,32 +139,32 @@ def __DenseNet(number, include_top=True, weights='hasc', input_shape=None, pooli
     if not include_top:
         if pooling is None:
             # topを削除する
-            model = Model(inputs=model.input, outputs=model.layers[-3].output)
+            model_ = Model(inputs=model_.input, outputs=model_.layers[-3].output)
         elif pooling == 'avg':
-            y = layers.GlobalAveragePooling1D()(model.layers[-3].output)
-            model = Model(inputs=model.input, outputs=y)
+            y = layers.GlobalAveragePooling1D()(model_.layers[-3].output)
+            model_ = Model(inputs=model_.input, outputs=y)
         elif pooling == 'max':
-            y = layers.GlobalMaxPooling1D()(model.layers[-3].output)
-            model = Model(inputs=model.input, outputs=y)
+            y = layers.GlobalMaxPooling1D()(model_.layers[-3].output)
+            model_ = Model(inputs=model_.input, outputs=y)
         else:
             print("Not exist pooling option: {}".format(pooling))
-            model = Model(inputs=model.input, outputs=model.layers[-3].output)
+            model_ = Model(inputs=model_.input, outputs=model_.layers[-3].output)
 
-    return model
+    return model_
 
 
 def DenseNet121(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    model = __DenseNet(121, include_top, weights, input_shape, pooling, classes, classifier_activation)
+    model = DenseNet(121, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
 def DenseNet169(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    model = __DenseNet(169, include_top, weights, input_shape, pooling, classes, classifier_activation)
+    model = DenseNet(169, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
 def DenseNet201(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    model = __DenseNet(201, include_top, weights, input_shape, pooling, classes, classifier_activation)
+    model = DenseNet(201, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
