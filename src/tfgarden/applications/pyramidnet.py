@@ -5,68 +5,69 @@ from tensorflow.keras.models import Model
 
 import os
 
+
 class Conv3:
-    def __init__(self, out_planes, stride=1):
-        """
-        3 Convolution with padding
-        """
+    def __init__(self, out_planes, stride=1, name=""):
         self.out_planes = out_planes
         self.stride = stride
+        self.name = name
 
     def __call__(self, x):
-        x = Conv1D(self.out_planes, kernel_size=3, strides=self.stride, padding='same', use_bias=False)(x)
+        x = tf.keras.layers.Conv1D(self.out_planes, 3, strides=self.stride, padding='same', use_bias=False,
+                                   name=self.name)(x)
         return x
 
 
 class Conv1:
-    def __init__(self, out_planes, stride=1):
-        """
-        1 Convolution with padding
-        """
+    def __init__(self, out_planes, stride=1, name=""):
         self.out_planes = out_planes
         self.stride = stride
+        self.name = name
 
     def __call__(self, x):
-        x = Conv1D(self.out_planes, kernel_size=1, strides=self.stride, padding='same', use_bias=False)(x)
+        x = tf.keras.layers.Conv1D(self.out_planes, 1, strides=self.stride, padding='same', use_bias=False,
+                                   name=self.name)(x)
         return x
 
 
 class BasicBlock:
-    def __init__(self, planes, stride=1, downsample=None):
+    def __init__(self, planes, stride=1, downsample=None, block_name=""):
         self.planes = planes
         self.stride = stride
         self.downsample = downsample
+        self.block_name = block_name
 
     def __call__(self, x):
         identity = x
-        x = BatchNormalization()(x)
-        x = Conv3(self.planes, stride=self.stride)(x)
 
-        x = BatchNormalization()(x)
-        x = ReLU()(x)
+        x = tf.keras.layers.BatchNormalization(name=self.block_name + "_bn_1")(x)
+        x = Conv3(self.planes, stride=self.stride, name=self.block_name + "_conv3_1")(x)
 
-        x = Conv3(self.planes, stride=1)(x)
-        x = BatchNormalization()(x)
+        x = tf.keras.layers.BatchNormalization(name=self.block_name + "_bn_2")(x)
+        x = tf.keras.layers.ReLU(name=self.block_name + "_relu")(x)
+
+        x = Conv3(self.planes, stride=1, name=self.block_name + "_conv3_2")(x)
+        x = tf.keras.layers.BatchNormalization(name=self.block_name + "_bn_3")(x)
 
         if self.downsample is not None:
             identity = self.downsample(identity)
 
-        # チャネル数が異なる場合のチャネル方向のゼロパディング
         ch_x = x.shape[-1]
         ch_identity = identity.shape[-1]
+
         if ch_x != ch_identity:
             identity = tf.pad(identity, [[0, 0], [0, 0], [0, ch_x - ch_identity]])
 
-        x = Add()([x, identity])
-
+        x = tf.keras.layers.Add(name=self.block_name + "_add")([x, identity])
         return x
 
 
 class Bottleneck:
-    def __init__(self, planes, stride=1, downsample=None):
+    def __init__(self, planes, stride=1, downsample=None, block_name=""):
         self.planes = planes
         self.stride = stride
         self.downsample = downsample
+        self.block_name = block_name
 
     def __call__(self, x):
         expansion = 4
@@ -74,39 +75,40 @@ class Bottleneck:
 
         identity = x
 
-        x = BatchNormalization()(x)
-        x = Conv1(width, stride=1)(x)
+        x = tf.keras.layers.BatchNormalization(name=self.block_name + "_bn_1b")(x)
+        x = Conv1(width, stride=1, name=self.block_name + "_conv1_1b")(x)
 
-        x = BatchNormalization()(x)
-        x = ReLU()(x)
-        x = Conv3(width, stride=self.stride)(x)
+        x = tf.keras.layers.BatchNormalization(name=self.block_name + "_bn_2b")(x)
+        x = tf.keras.layers.ReLU(name=self.block_name + "_relu_2b")(x)
+        x = Conv3(width, stride=self.stride, name=self.block_name + "_conv3_2b")(x)
 
-        x = BatchNormalization()(x)
-        x = ReLU()(x)
-        x = Conv1(width * expansion, stride=1)(x)
+        x = tf.keras.layers.BatchNormalization(name=self.block_name + "_bn_3b")(x)
+        x = tf.keras.layers.ReLU(name=self.block_name + "_relu_3b")(x)
+        x = Conv1(width * expansion, stride=1, name=self.block_name + "_conv1_expand")(x)
 
-        x = BatchNormalization()(x)
+        x = tf.keras.layers.BatchNormalization(name=self.block_name + "_bn_4")(x)
 
         if self.downsample is not None:
-            identity = self.downsample(identity)
+            identity = self.downsample(x)
 
-        # チャネル数が異なる場合のチャネル方向のゼロパディング
         ch_x = x.shape[-1]
         ch_identity = identity.shape[-1]
+
         if ch_x != ch_identity:
             identity = tf.pad(identity, [[0, 0], [0, 0], [0, ch_x - ch_identity]])
 
-        x = Add()([x, identity])
+        x = tf.keras.layers.Add(name=self.block_name + "_add")([x, identity])
         return x
 
 
 class Stack:
-    def __init__(self, block_fn, n_layer, add_rate, stride, is_first=False):
+    def __init__(self, block_fn, n_layer, add_rate, stride, is_first=False, name=""):
         self.block_fn = block_fn
         self.n_layer = n_layer
         self.add_rate = add_rate
         self.stride = stride
         self.is_first = is_first
+        self.name = name
 
     def __call__(self, x):
         if self.block_fn is BasicBlock:
@@ -118,7 +120,7 @@ class Stack:
 
         if self.stride != 1:
             def _downsample(x):
-                x = AvgPool1D(pool_size=2, strides=2)(x)
+                x = tf.keras.layers.AveragePooling1D(pool_size=2, strides=2)(x)
                 return x
 
             downsample = _downsample
@@ -129,11 +131,11 @@ class Stack:
             inplanes = x.shape[-1] // expansion
 
         outplanes = int(inplanes) + self.add_rate
-        x = self.block_fn(outplanes, self.stride, downsample)(x)
+        x = self.block_fn(outplanes, self.stride, downsample, block_name=self.name + "_1")(x)
         outplanes += self.add_rate
 
-        for _ in range(1, self.n_layer):
-            x = self.block_fn(outplanes, stride=1)(x)
+        for i in range(1, self.n_layer):
+            x = self.block_fn(outplanes, stride=1, block_name=self.name + "_{}".format(i + 2))(x)
             outplanes += self.add_rate
 
         return x
@@ -172,10 +174,10 @@ def PyramidNet(number, include_top=True, weights='hasc', input_shape=None, pooli
 
     x = in_tensor = Input(shape=input_shape)
 
-    x = Conv1D(inplanes, kernel_size=7, strides=2, padding='same', use_bias=False)(x)
+    x = Conv1D(inplanes, kernel_size=7, strides=2, padding='same', use_bias=False, name='bottom_conv')(x)
     assert x.shape[1] == in_tensor.shape[1] // 2, 'shape incorrect'
-    x = BatchNormalization()(x)
-    x = MaxPool1D(pool_size=4, strides=2, padding='same')(x)
+    x = BatchNormalization(name="bottom_conv_bn")(x)
+    x = MaxPool1D(pool_size=4, strides=2, padding='same', name='bottom_pool')(x)
     assert x.shape[1] == in_tensor.shape[1] // 4, 'shape incorrect'
 
     if block is BasicBlock:
@@ -184,12 +186,12 @@ def PyramidNet(number, include_top=True, weights='hasc', input_shape=None, pooli
         expansion = 4
 
     # stack residual blocks
-    x = Stack(block, layers[0], add_rate, stride=1, is_first=True)(x)
+    x = Stack(block, layers[0], add_rate, stride=1, is_first=True, name='stack1')(x)
     assert x.shape[-1] == (inplanes + add_rate * layers[0]) * expansion, 'n_fil incorrect'
     assert x.shape[1] == in_tensor.shape[1] // 4, 'shape incorrect'
 
     for i in range(1, len(layers)):
-        x = Stack(block, layers[i], add_rate, stride=2)(x)
+        x = Stack(block, layers[i], add_rate, stride=2, name='stack{}'.format(i + 1))(x)
         assert int(x.shape[-1]) == (
                     inplanes + add_rate * sum(layers[:i + 1])) * expansion, 'n_fil incorrect'
         assert int(x.shape[1]) == in_tensor.shape[1] // (2 ** (2 + i)), 'shape incorrect'
@@ -197,7 +199,7 @@ def PyramidNet(number, include_top=True, weights='hasc', input_shape=None, pooli
     x = GlobalAveragePooling1D()(x)
     x = Flatten()(x)
     assert int(x.shape[-1]) == (inplanes + add_rate * N) * expansion
-    x = Dense(classes, activation=classifier_activation)(x)
+    x = Dense(classes, activation=classifier_activation, name='predictions')(x)
 
     model = Model(inputs=in_tensor, outputs=x)
 
