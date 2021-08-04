@@ -36,42 +36,47 @@ def VGG11(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
     x = ConvBlock(2, 512)(x)
     x = ConvBlock(2, 512)(x)
 
-    if include_top:
-        x = Flatten()(x)
-        x = Dense(4096, activation="relu", kernel_initializer="he_normal",
-                  name="fc1")(x)
-        x = Dense(4096, activation="relu", kernel_initializer="he_normal",
-                  name="fc2")(x)
-        y = Dense(classes, activation=classifier_activation, name="prediction")(x)
+    x = Flatten()(x)
+    x = Dense(4096, activation="relu", kernel_initializer="he_normal",
+              name="fc1")(x)
+    x = Dense(4096, activation="relu", kernel_initializer="he_normal",
+              name="fc2")(x)
+    y = Dense(classes, activation=classifier_activation, name="prediction")(x)
 
-        model_ = Model(inputs=inputs, outputs=y)
+    model = Model(inputs=inputs, outputs=y)
 
-        if weights is not None:
-            if weights in ['hasc', 'HASC']:
-                weights = 'weights/vgg11/vgg11_hasc_weights_{}_{}.hdf5'.format(input_shape[0], input_shape[1])
+    # 重みの指定があるとき
+    if weights is not None:
+        # hascで初期化
+        if weights in ['hasc', "HASC"]:
+            weights = 'weights/vgg11/vgg11_hasc_weights_{}_{}.hdf5'.format(
+                                                                           int(input_shape[0]),
+                                                                           int(input_shape[1]))
 
-            if os.path.exists(weights):
-                print("Load weights from {}".format(weights))
-                model_.load_weights(weights)
-            else:
-                print("Not exist weights: {}".format(weights))
-        return model_
-    else:
+        # hasc or weights fileで初期化
+        if os.path.exists(weights):
+            print("Load weights from {}".format(weights))
+            model.load_weights(weights)
+        else:
+            # 重みのファイルがなかったらhe_normal初期化のまま返す
+            print("Not exist weights: {}".format(weights))
+
+    # topを含まないとき
+    if not include_top:
         if pooling is None:
-            model_ = Model(inputs=inputs, outputs=x)
-            return model_
+            # topを削除する
+            model = Model(inputs=model.input, outputs=model.layers[-5].output)
         elif pooling == 'avg':
-            x = GlobalAveragePooling1D(name="avgpool")(x)
-            model_ = Model(inputs=inputs, outputs=x)
-            return model_
+            y = GlobalAveragePooling1D()(model.layers[-5].output)
+            model = Model(inputs=model.input, outputs=y)
         elif pooling == 'max':
-            x = GlobalMaxPooling1D(name="maxpool")(x)
-            model_ = Model(inputs=inputs, outputs=x)
-            return model_
+            y = GlobalMaxPooling1D()(model.layers[-5].output)
+            model = Model(inputs=model.input, outputs=y)
         else:
             print("Not exist pooling option: {}".format(pooling))
-            model_ = Model(inputs=inputs, outputs=x)
-            return model_
+            model = Model(inputs=model.input, outputs=model.layers[-5].output)
+
+    return model
 
 
 if __name__ == '__main__':
