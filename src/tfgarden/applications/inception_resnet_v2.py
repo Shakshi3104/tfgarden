@@ -3,8 +3,6 @@ import os
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
 
-from .base import DLModelBuilder
-
 
 class Conv1DBN:
     def __init__(self, filters, kernel_size, strides=1, padding='same', activation='relu', use_bias=False, name=None):
@@ -126,85 +124,6 @@ class InceptionResNetBlock:
         return x
 
 
-class BaseInceptionResNetV2(DLModelBuilder):
-    def __init__(self, input_shape=None, num_classes=6, classifier_activation='softmax'):
-        self.input_shape = input_shape
-        self.num_classes = num_classes
-        self.classifier_activation = classifier_activation
-
-    def __call__(self, *args, **kwargs):
-        model = self.get_model()
-        return model
-
-    def get_model(self):
-        inputs = layers.Input(shape=self.input_shape)
-
-        # stem block
-        x = Conv1DBN(32, 3, strides=2, padding='valid')(inputs)
-        x = Conv1DBN(32, 3, padding='valid')(x)
-        x = Conv1DBN(64, 3)(x)
-        x = layers.MaxPooling1D(3, strides=2)(x)
-        x = Conv1DBN(80, 1, padding='valid')(x)
-        x = Conv1DBN(192, 3, padding='valid')(x)
-        x = layers.MaxPooling1D(3, strides=2)(x)
-
-        # Mixed 5b (Inception-A block)
-        branch_0 = Conv1DBN(96, 1)(x)
-        branch_1 = Conv1DBN(48, 1)(x)
-        branch_1 = Conv1DBN(64, 5)(branch_1)
-        branch_2 = Conv1DBN(64, 1)(x)
-        branch_2 = Conv1DBN(96, 3)(branch_2)
-        branch_2 = Conv1DBN(96, 3)(branch_2)
-        branch_pool = layers.AveragePooling1D(3, strides=1, padding='same')(x)
-        branch_pool = Conv1DBN(64, 1)(branch_pool)
-        branches = [branch_0, branch_1, branch_2, branch_pool]
-        x = layers.Concatenate(name='mixed_5b')(branches)
-
-        # 10x block35 (Inception-ResNet-A block)
-        for block_idx in range(1, 11):
-            x = InceptionResNetBlock(scale=0.17, block_type='block35', block_idx=block_idx)(x)
-
-        # Mixed 6a (Reduction-A block)
-        branch_0 = Conv1DBN(384, 3, strides=2, padding='valid')(x)
-        branch_1 = Conv1DBN(256, 1)(x)
-        branch_1 = Conv1DBN(256, 3)(branch_1)
-        branch_1 = Conv1DBN(384, 3, strides=2, padding='valid')(branch_1)
-        branch_pool = layers.MaxPooling1D(3, strides=2, padding='valid')(x)
-        branches = [branch_0, branch_1, branch_pool]
-        x = layers.Concatenate(name='mixed_6a')(branches)
-
-        # 20x block17 (Inception-ResNet-B block)
-        for block_idx in range(1, 21):
-            x = InceptionResNetBlock(scale=0.1, block_type='block17', block_idx=block_idx)(x)
-
-        # Mixed 7a (Reduction-B block)
-        branch_0 = Conv1DBN(256, 1)(x)
-        branch_0 = Conv1DBN(384, 3, strides=2, padding='valid')(branch_0)
-        branch_1 = Conv1DBN(256, 1)(x)
-        branch_1 = Conv1DBN(288, 3, strides=2, padding='valid')(branch_1)
-        branch_2 = Conv1DBN(256, 1)(x)
-        branch_2 = Conv1DBN(288, 3)(branch_2)
-        branch_2 = Conv1DBN(320, 3, strides=2, padding='valid')(branch_2)
-        branch_pool = layers.MaxPooling1D(3, strides=2, padding='valid')(x)
-        branches = [branch_0, branch_1, branch_2, branch_pool]
-        x = layers.Concatenate(name='mixed_7a')(branches)
-
-        # 10x block8 (Inception-ResNet-C block)
-        for block_idx in range(1, 10):
-            x = InceptionResNetBlock(scale=0.2, block_type='block8', block_idx=block_idx)(x)
-        x = InceptionResNetBlock(scale=1., activation=None, block_type='block8', block_idx=10)(x)
-
-        # Final convolution block
-        x = Conv1DBN(1536, 1, name='conv_7b')(x)
-
-        # Classification block
-        x = layers.GlobalAveragePooling1D(name='avg_pool')(x)
-        y = layers.Dense(self.num_classes, activation=self.classifier_activation, name='predictions')(x)
-
-        model = Model(inputs, y)
-        return model
-
-
 def InceptionResNetV2(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
                       classifier_activation='softmax'):
     if input_shape is None:
@@ -214,8 +133,71 @@ def InceptionResNetV2(include_top=True, weights='hasc', input_shape=None, poolin
         raise ValueError('If using `weights` as `"hasc"` with `include_top`'
                          ' as true, `classes` should be 6')
 
-    # Build model
-    model = BaseInceptionResNetV2(input_shape, classes, classifier_activation)()
+    inputs = layers.Input(shape=input_shape)
+
+    # stem block
+    x = Conv1DBN(32, 3, strides=2, padding='valid')(inputs)
+    x = Conv1DBN(32, 3, padding='valid')(x)
+    x = Conv1DBN(64, 3)(x)
+    x = layers.MaxPooling1D(3, strides=2)(x)
+    x = Conv1DBN(80, 1, padding='valid')(x)
+    x = Conv1DBN(192, 3, padding='valid')(x)
+    x = layers.MaxPooling1D(3, strides=2)(x)
+
+    # Mixed 5b (Inception-A block)
+    branch_0 = Conv1DBN(96, 1)(x)
+    branch_1 = Conv1DBN(48, 1)(x)
+    branch_1 = Conv1DBN(64, 5)(branch_1)
+    branch_2 = Conv1DBN(64, 1)(x)
+    branch_2 = Conv1DBN(96, 3)(branch_2)
+    branch_2 = Conv1DBN(96, 3)(branch_2)
+    branch_pool = layers.AveragePooling1D(3, strides=1, padding='same')(x)
+    branch_pool = Conv1DBN(64, 1)(branch_pool)
+    branches = [branch_0, branch_1, branch_2, branch_pool]
+    x = layers.Concatenate(name='mixed_5b')(branches)
+
+    # 10x block35 (Inception-ResNet-A block)
+    for block_idx in range(1, 11):
+        x = InceptionResNetBlock(scale=0.17, block_type='block35', block_idx=block_idx)(x)
+
+    # Mixed 6a (Reduction-A block)
+    branch_0 = Conv1DBN(384, 3, strides=2, padding='valid')(x)
+    branch_1 = Conv1DBN(256, 1)(x)
+    branch_1 = Conv1DBN(256, 3)(branch_1)
+    branch_1 = Conv1DBN(384, 3, strides=2, padding='valid')(branch_1)
+    branch_pool = layers.MaxPooling1D(3, strides=2, padding='valid')(x)
+    branches = [branch_0, branch_1, branch_pool]
+    x = layers.Concatenate(name='mixed_6a')(branches)
+
+    # 20x block17 (Inception-ResNet-B block)
+    for block_idx in range(1, 21):
+        x = InceptionResNetBlock(scale=0.1, block_type='block17', block_idx=block_idx)(x)
+
+    # Mixed 7a (Reduction-B block)
+    branch_0 = Conv1DBN(256, 1)(x)
+    branch_0 = Conv1DBN(384, 3, strides=2, padding='valid')(branch_0)
+    branch_1 = Conv1DBN(256, 1)(x)
+    branch_1 = Conv1DBN(288, 3, strides=2, padding='valid')(branch_1)
+    branch_2 = Conv1DBN(256, 1)(x)
+    branch_2 = Conv1DBN(288, 3)(branch_2)
+    branch_2 = Conv1DBN(320, 3, strides=2, padding='valid')(branch_2)
+    branch_pool = layers.MaxPooling1D(3, strides=2, padding='valid')(x)
+    branches = [branch_0, branch_1, branch_2, branch_pool]
+    x = layers.Concatenate(name='mixed_7a')(branches)
+
+    # 10x block8 (Inception-ResNet-C block)
+    for block_idx in range(1, 10):
+        x = InceptionResNetBlock(scale=0.2, block_type='block8', block_idx=block_idx)(x)
+    x = InceptionResNetBlock(scale=1., activation=None, block_type='block8', block_idx=10)(x)
+
+    # Final convolution block
+    x = Conv1DBN(1536, 1, name='conv_7b')(x)
+
+    # Classification block
+    x = layers.GlobalAveragePooling1D(name='avg_pool')(x)
+    y = layers.Dense(classes, activation=classifier_activation, name='predictions')(x)
+
+    model = Model(inputs, y)
 
     if weights is not None:
         if weights in ['hasc', "HASC"]:
