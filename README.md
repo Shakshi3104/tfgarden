@@ -1,5 +1,5 @@
-# TensorFlow model Garden for HASC
-The TensorFlow model Garden for HASC (**tfgarden**) is the repository of CNN models implemented for human activity recognition (HASC), like [`tensorflow.keras.applications`](https://www.tensorflow.org/api_docs/python/tf/keras/applications).
+# TensorFlow model Garden for Human Activity Recognition
+The TensorFlow model Garden for Human Activity Recognition (**tfgarden**) is the repository of CNN models implemented for sensor-based human activity recognition, like [`tensorflow.keras.applications`](https://www.tensorflow.org/api_docs/python/tf/keras/applications).
 
 The models implemented here can also be used as a source domain for sensor-based task (e.g. sidewalk surface type estimation).
 
