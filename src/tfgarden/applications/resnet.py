@@ -1,11 +1,8 @@
-import tensorflow as tf
-from tensorflow.keras.layers import Conv1D, MaxPool1D, BatchNormalization, Dense, Flatten, AvgPool1D, Add, Input
-from tensorflow.keras.layers import GlobalAveragePooling1D, GlobalMaxPooling1D, Activation, add
-from tensorflow.keras.models import Model
-
 import os
 
-from .base import DLModelBuilder
+from tensorflow.keras.layers import Conv1D, BatchNormalization, Dense, Flatten, Input
+from tensorflow.keras.layers import GlobalAveragePooling1D, GlobalMaxPooling1D, Activation, add
+from tensorflow.keras.models import Model
 
 
 class Shortcut:
@@ -104,51 +101,6 @@ class ResidualBlock:
         return x
 
 
-class BaseResNet(DLModelBuilder):
-    def __init__(self, layers=None, repeats=None, kernel_size=3, strides=1, kernel_initializer='he_normal',
-                 input_shape=(256 * 3, 1), num_classes=6, classifier_activation='softmax'):
-        super(BaseResNet, self).__init__(kernel_size, strides, kernel_initializer, None, input_shape, num_classes)
-        self.layers = layers
-        self.repeats = repeats
-
-        self.classifier_activation = classifier_activation
-
-        self.model_name = "ResNet"
-
-    def __call__(self, *args, **kwargs):
-        model = self.get_model()
-        return model
-
-    def get_model(self):
-        # layers, repeatsがNoneのときはResNet 18
-        if self.layers is None:
-            self.layers = [16, 32, 64, 96]
-
-        if self.repeats is None:
-            self.repeats = [2, 2, 2, 2]
-
-        assert len(self.layers) == len(self.repeats), 'incorrect'
-
-        inputs = Input(self.input_shape)
-        x = Conv1D(32, 7, strides=2, padding='same', kernel_initializer=self.kernel_initializer)(inputs)
-        x = BatchNormalization()(x)
-        x = Activation('relu')(x)
-
-        x = ResidualBlock(nb_fil=self.layers[0], repeats=self.repeats[0], block=BasicBlock, is_first=True,
-                          kernel_initializer=self.kernel_initializer)(x)
-
-        for layer, repeat in zip(self.layers[1:], self.repeats[1:]):
-            x = ResidualBlock(layer, repeat, BasicBlock, kernel_initializer=self.kernel_initializer)(x)
-
-        x = GlobalAveragePooling1D()(x)
-        x = Flatten()(x)
-        y = Dense(self.num_classes, activation=self.classifier_activation)(x)
-
-        model = Model(inputs=inputs, outputs=y)
-
-        return model
-
-
 def __ResNet(number, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
     if input_shape is None:
         input_shape = (256 * 3, 1)
@@ -158,17 +110,34 @@ def __ResNet(number, include_top=True, weights='hasc', input_shape=None, pooling
                          ' as true, `classes` should be 6')
 
     if number == 18:
-        resnet = BaseResNet(layers=[64, 128, 256, 512], repeats=[2, 2, 2, 2], input_shape=input_shape,
-                            num_classes=classes, classifier_activation=classifier_activation)
+        layers = [64, 128, 256, 512]
+        repeats = [2, 2, 2, 2]
     elif number == 16:
         # ResNet34-half implemented by t-hase
-        resnet = BaseResNet(layers=[64, 128], repeats=[3, 4], input_shape=input_shape,
-                            num_classes=classes, classifier_activation=classifier_activation)
+        layers = [64, 128]
+        repeats = [3, 4]
     elif number == 34:
-        resnet = BaseResNet(layers=[64, 128, 256, 512], repeats=[3, 4, 6, 3], input_shape=input_shape,
-                            num_classes=classes, classifier_activation=classifier_activation)
+        layers = [64, 128, 256, 512]
+        repeats = [3, 4, 6, 3]
 
-    model = resnet()
+    assert len(layers) == len(repeats), 'incorrect'
+
+    inputs = Input(input_shape)
+    x = Conv1D(32, 7, strides=2, padding='same', kernel_initializer="he_normal")(inputs)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+
+    x = ResidualBlock(nb_fil=layers[0], repeats=repeats[0], block=BasicBlock, is_first=True,
+                      kernel_initializer="he_normal")(x)
+
+    for layer, repeat in zip(layers[1:], repeats[1:]):
+        x = ResidualBlock(layer, repeat, BasicBlock, kernel_initializer="he_normal")(x)
+
+    x = GlobalAveragePooling1D()(x)
+    x = Flatten()(x)
+    y = Dense(classes, activation=classifier_activation)(x)
+
+    model = Model(inputs=inputs, outputs=y)
 
     if weights is not None:
         if weights in ['hasc', "HASC"]:
@@ -222,6 +191,3 @@ if __name__ == '__main__':
                      pooling='max')
 
     print(model.summary())
-
-    from tensorflow.keras.utils import plot_model
-    plot_model(model, to_file="../weights/resnet18.pdf", show_shapes=True)
