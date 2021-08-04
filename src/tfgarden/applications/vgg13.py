@@ -6,7 +6,6 @@ from tensorflow.keras.models import Model
 from.vgg import ConvBlock
 
 
-# VGG13を読み込む関数
 def VGG13(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
     """
     applications.vgg13.VGG13
@@ -49,7 +48,7 @@ def VGG13(include_top=True, weights='hasc', input_shape=None, pooling=None, clas
 
         if weights is not None:
             if weights in ['hasc', 'HASC']:
-                weights = 'weights/vgg11/vgg11_hasc_weights_{}_{}.hdf5'.format(input_shape[0], input_shape[1])
+                weights = 'weights/vgg13/vgg13_hasc_weights_{}_{}.hdf5'.format(input_shape[0], input_shape[1])
 
             if os.path.exists(weights):
                 print("Load weights from {}".format(weights))

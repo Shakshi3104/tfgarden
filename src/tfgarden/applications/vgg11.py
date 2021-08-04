@@ -3,7 +3,7 @@ import os
 from tensorflow.keras.layers import Input, Flatten, Dense, GlobalAveragePooling1D, GlobalMaxPooling1D
 from tensorflow.keras.models import Model
 
-from .base import ConvBlock
+from .vgg import ConvBlock
 
 
 def VGG11(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):

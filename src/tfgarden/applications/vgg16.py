@@ -3,59 +3,9 @@ import os
 from tensorflow.keras.layers import Input, Flatten, Dense, GlobalAveragePooling1D, GlobalMaxPooling1D
 from tensorflow.keras.models import Model
 
-from .base import DLModelBuilder
-from src.tfgarden.applications import ConvBlock
 from .vgg import ConvBlock
 
 
-# he_normalで初期化するVGG16
-class BaseVGG16(DLModelBuilder):
-    def __init__(self, kernel_size=3, strides=1, kernel_initializer='he_normal',
-                 padding='same', input_shape=(256 * 3, 1), num_classes=6, classifier_activation='softmax'):
-        """
-        VGG16
-            kernel_size: kernel_size of Conv1D, default `3`
-            strides: strides of Conv1D, default `1`
-            kernel_initializer: kernel_initializer of Conv1D and Dense (Fully-connected layers), default `'he_normal'`
-            padding: padding of Conv1D and MaxPooling1D, default `'same'`
-            input_shape: shape of Input, default `(768, 1)`
-            num_classes: The number of target classes
-            classifier_activation: The activation function to use on the "top" layer, default `"softmax"`
-        """
-        super(BaseVGG16, self).__init__(kernel_size=kernel_size, strides=strides, kernel_initializer=kernel_initializer,
-                                        padding=padding, input_shape=input_shape, num_classes=num_classes)
-        self.classifier_activation = classifier_activation
-        self.model_name = "VGG16"
-
-    def __call__(self, *args, **kwargs):
-        model = self.get_model()
-        return model
-
-    def get_model(self):
-        inputs = Input(shape=self.input_shape)
-        x = ConvBlock(2, 64, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
-                      kernel_initializer=self.kernel_initializer)(inputs)
-        x = ConvBlock(2, 128, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
-                      kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(3, 256, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
-                      kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(3, 512, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
-                      kernel_initializer=self.kernel_initializer)(x)
-        x = ConvBlock(3, 512, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
-                      kernel_initializer=self.kernel_initializer)(x)
-
-        x = Flatten()(x)
-        x = Dense(4096, activation='relu', kernel_initializer=self.kernel_initializer)(x)
-        # x = Dropout(0.5)(x)
-        x = Dense(4096, activation='relu', kernel_initializer=self.kernel_initializer)(x)
-        # x = Dropout(0.5)(x)
-        y = Dense(self.num_classes, activation=self.classifier_activation)(x)
-
-        model = Model(inputs=inputs, outputs=y)
-        return model
-
-
-# VGG16を読み込む関数
 def VGG16(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
     """
     applications.vgg16.VGG16
