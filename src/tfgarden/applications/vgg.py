@@ -1,63 +1,35 @@
-import os
-
-from tensorflow.keras import Model
-from tensorflow.keras.layers import GlobalAveragePooling1D, GlobalMaxPooling1D
+from tensorflow.keras.layers import Conv1D, MaxPooling1D
 
 
-# VGG*を読み込む関数
-def VGG(number, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    if input_shape is None:
-        input_shape = (256 * 3, 1)
+class ConvBlock:
+    def __init__(self, repeat, filters, kernel_size=3, strides=1, padding='same', activation='relu',
+                 kernel_initializer='he_normal', pool_size=2, block_id=0):
+        """
+        ConvBlock for VGG
+            repeat: the number of Conv1D
+            filters: the number of filter of Conv1D
+            kernel_size: the kernel_size of Conv1D, default `3`
+            strides: the strides of Conv1D, default `1`
+            padding: the padding of Conv1D and MaxPooling1D, default `'same'`
+            activation: the activation function of Conv1D, default `'relu'`
+            kernel_initializer: the kernel_initializer of Conv1D, default `'he_normal'`
+            pool_size: the pool_size of MaxPooling1D, default `2`
+        """
+        self.repeat = repeat
+        self.filters = filters
+        self.kernel_size = kernel_size
+        self.strides = strides
+        self.padding = padding
+        self.activation = activation
+        self.kernel_initializer = kernel_initializer
+        self.pool_size = pool_size
+        self.block_id = block_id
 
-    if weights in ['hasc', 'HASC'] and include_top and classes != 6:
-        raise ValueError('If using `weights` as `"hasc"` with `include_top`'
-                         ' as true, `classes` should be 6')
+    def __call__(self, x):
+        for i in range(0, self.repeat):
+            x = Conv1D(self.filters, kernel_size=self.kernel_size, strides=self.strides, padding=self.padding,
+                       activation=self.activation, kernel_initializer=self.kernel_initializer,
+                       name='block{}_{}'.format(self.block_id, i+1))(x)
 
-    from . import vgg11, vgg13, vgg16, vgg19
-    # VGGのバージョン指定
-    if number == 11:
-        vgg = vgg11.BaseVGG11(input_shape=input_shape, num_classes=classes, classifier_activation=classifier_activation)
-    elif number == 13:
-        vgg = vgg13.BaseVGG13(input_shape=input_shape, num_classes=classes, classifier_activation=classifier_activation)
-    elif number == 16:
-        vgg = vgg16.BaseVGG16(input_shape=input_shape, num_classes=classes, classifier_activation=classifier_activation)
-    elif number == 19:
-        vgg = vgg19.BaseVGG19(input_shape=input_shape, num_classes=classes, classifier_activation=classifier_activation)
-    else:
-        vgg = vgg16.BaseVGG16(input_shape=input_shape, num_classes=classes, classifier_activation=classifier_activation)
-
-    # モデルをビルドする
-    model = vgg()
-
-    # 重みの指定があるとき
-    if weights is not None:
-        # hascで初期化
-        if weights in ['hasc', "HASC"]:
-            weights = 'weights/vgg{}/vgg{}_hasc_weights_{}_{}.hdf5'.format(number, number,
-                                                                           int(input_shape[0]),
-                                                                           int(input_shape[1]))
-
-        # hasc or weights fileで初期化
-        if os.path.exists(weights):
-            print("Load weights from {}".format(weights))
-            model.load_weights(weights)
-        else:
-            # 重みのファイルがなかったらhe_normal初期化のまま返す
-            print("Not exist weights: {}".format(weights))
-
-    # topを含まないとき
-    if not include_top:
-        if pooling is None:
-            # topを削除する
-            model = Model(inputs=model.input, outputs=model.layers[-5].output)
-        elif pooling == 'avg':
-            y = GlobalAveragePooling1D()(model.layers[-5].output)
-            model = Model(inputs=model.input, outputs=y)
-        elif pooling == 'max':
-            y = GlobalMaxPooling1D()(model.layers[-5].output)
-            model = Model(inputs=model.input, outputs=y)
-        else:
-            print("Not exist pooling option: {}".format(pooling))
-            model = Model(inputs=model.input, outputs=model.layers[-5].output)
-
-    return model
+        x = MaxPooling1D(pool_size=self.pool_size, padding=self.padding, name="block{}_pool".format(self.block_id))(x)
+        return x

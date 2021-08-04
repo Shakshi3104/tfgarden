@@ -1,11 +1,8 @@
 import os
 
-import tensorflow as tf
-from tensorflow.keras.layers import Conv1D, BatchNormalization, ReLU, SeparableConv1D, ZeroPadding1D, GlobalAveragePooling1D, GlobalMaxPooling1D
-from tensorflow.keras.layers import Input, Reshape, Dropout, Activation
+from tensorflow.keras.layers import Conv1D, BatchNormalization, ReLU, SeparableConv1D, ZeroPadding1D
+from tensorflow.keras.layers import Input, Reshape, Dropout, Activation, GlobalAveragePooling1D, GlobalMaxPooling1D
 from tensorflow.keras.models import Model
-
-from .base import DLModelBuilder
 
 
 class ConvBlock:
@@ -51,55 +48,6 @@ class DepthwiseConvBlock:
         return x
 
 
-class BaseMobileNet(DLModelBuilder):
-    def __init__(self, input_shape=(256*3, 1), alpha=1.0, depth_multiplier=1, dropout=1e-3, num_classes=6,
-                 classifier_activation='softmax'):
-        self.input_shape = input_shape
-        self.alpha = alpha
-        self.depth_multiplier = depth_multiplier
-        self.dropout = dropout
-        self.num_classes = num_classes
-        self.classifier_activation = classifier_activation
-
-    def __call__(self, *args, **kwargs):
-        model = self.get_model()
-        return model
-
-    def get_model(self):
-        inputs = Input(shape=self.input_shape)
-
-        x = ConvBlock(32, self.alpha, strides=2)(inputs)
-        x = DepthwiseConvBlock(64, self.alpha, self.depth_multiplier, block_id=1)(x)
-
-        x = DepthwiseConvBlock(128, self.alpha, self.depth_multiplier, strides=2, block_id=2)(x)
-        x = DepthwiseConvBlock(128, self.alpha, self.depth_multiplier, block_id=3)(x)
-
-        x = DepthwiseConvBlock(256, self.alpha, self.depth_multiplier, strides=2, block_id=4)(x)
-        x = DepthwiseConvBlock(256, self.alpha, self.depth_multiplier, block_id=5)(x)
-
-        x = DepthwiseConvBlock(512, self.alpha, self.depth_multiplier, strides=2, block_id=6)(x)
-        x = DepthwiseConvBlock(512, self.alpha, self.depth_multiplier, block_id=7)(x)
-        x = DepthwiseConvBlock(512, self.alpha, self.depth_multiplier, block_id=8)(x)
-        x = DepthwiseConvBlock(512, self.alpha, self.depth_multiplier, block_id=9)(x)
-        x = DepthwiseConvBlock(512, self.alpha, self.depth_multiplier, block_id=10)(x)
-        x = DepthwiseConvBlock(512, self.alpha, self.depth_multiplier, block_id=11)(x)
-
-        x = DepthwiseConvBlock(1024, self.alpha, self.depth_multiplier, strides=2, block_id=12)(x)
-        x = DepthwiseConvBlock(1024, self.alpha, self.depth_multiplier, block_id=13)(x)
-
-        shape = (1, int(1024 * self.alpha))
-
-        x = GlobalAveragePooling1D()(x)
-        x = Reshape(shape, name='reshape_1')(x)
-        x = Dropout(self.dropout, name='dropout')(x)
-        x = Conv1D(self.num_classes, 1, padding='same', name='conv_preds')(x)
-        x = Reshape((self.num_classes,), name='reshape_2')(x)
-        x = Activation(activation=self.classifier_activation, name='predictions')(x)
-
-        model = Model(inputs=inputs, outputs=x)
-        return model
-
-
 def MobileNet(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax',
               alpha=1.0, depth_multiplier=1, dropout=1e-3):
     if input_shape is None:
@@ -109,8 +57,37 @@ def MobileNet(include_top=True, weights='hasc', input_shape=None, pooling=None, 
         raise ValueError('If using `weights` as `"hasc"` with `include_top`'
                          ' as true, `classes` should be 6')
 
-    # Build model
-    model = BaseMobileNet(input_shape, alpha, depth_multiplier, dropout, classes, classifier_activation)()
+    inputs = Input(shape=input_shape)
+
+    x = ConvBlock(32, alpha, strides=2)(inputs)
+    x = DepthwiseConvBlock(64, alpha, depth_multiplier, block_id=1)(x)
+
+    x = DepthwiseConvBlock(128, alpha, depth_multiplier, strides=2, block_id=2)(x)
+    x = DepthwiseConvBlock(128, alpha, depth_multiplier, block_id=3)(x)
+
+    x = DepthwiseConvBlock(256, alpha, depth_multiplier, strides=2, block_id=4)(x)
+    x = DepthwiseConvBlock(256, alpha, depth_multiplier, block_id=5)(x)
+
+    x = DepthwiseConvBlock(512, alpha, depth_multiplier, strides=2, block_id=6)(x)
+    x = DepthwiseConvBlock(512, alpha, depth_multiplier, block_id=7)(x)
+    x = DepthwiseConvBlock(512, alpha, depth_multiplier, block_id=8)(x)
+    x = DepthwiseConvBlock(512, alpha, depth_multiplier, block_id=9)(x)
+    x = DepthwiseConvBlock(512, alpha, depth_multiplier, block_id=10)(x)
+    x = DepthwiseConvBlock(512, alpha, depth_multiplier, block_id=11)(x)
+
+    x = DepthwiseConvBlock(1024, alpha, depth_multiplier, strides=2, block_id=12)(x)
+    x = DepthwiseConvBlock(1024, alpha, depth_multiplier, block_id=13)(x)
+
+    shape = (1, int(1024 * alpha))
+
+    x = GlobalAveragePooling1D()(x)
+    x = Reshape(shape, name='reshape_1')(x)
+    x = Dropout(dropout, name='dropout')(x)
+    x = Conv1D(classes, 1, padding='same', name='conv_preds')(x)
+    x = Reshape((classes,), name='reshape_2')(x)
+    x = Activation(activation=classifier_activation, name='predictions')(x)
+
+    model = Model(inputs=inputs, outputs=x)
 
     if weights is not None:
         if weights in ['hasc', "HASC"]:

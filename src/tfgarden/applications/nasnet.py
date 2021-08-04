@@ -4,8 +4,6 @@ from tensorflow.python.keras import backend
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
 
-from .base import DLModelBuilder
-
 
 class SeparableConvBlock:
     def __init__(self, filters, kernel_size=3, strides=1, block_id=None):
@@ -285,79 +283,64 @@ def padding(x1, x2):
     return x1, x2
 
 
-class BaseNASNet(DLModelBuilder):
-    def __init__(self, input_shape=(256 * 3, 1), penultimate_filters=4032, num_blocks=6, stem_block_filters=96,
-                 skip_reduction=True, filter_multiplier=2, num_classes=6, classifier_activation='softmax'):
-        self.input_shape = input_shape
-        self.penultimate_filters = penultimate_filters
-        self.num_blocks = num_blocks
-        self.stem_block_filters = stem_block_filters
-        self.skip_reduction = skip_reduction
-        self.filter_multiplier = filter_multiplier
-        self.num_classes = num_classes
-        self.classifier_activation = classifier_activation
+def NASNet(input_shape=(256 * 3, 1), penultimate_filters=4032, num_blocks=6, stem_block_filters=96,
+           skip_reduction=True, filter_multiplier=2, classes=6, classifier_activation='softmax'):
+    inputs = layers.Input(shape=input_shape)
 
-    def __call__(self, *args, **kwargs):
-        model = self.get_model()
-        return model
+    if penultimate_filters % (24 * (filter_multiplier ** 2)) != 0:
+        raise ValueError(
+            'For NASNet-A models, the `penultimate_filters` must be a multiple '
+            'of 24 * (`filter_multiplier` ** 2). Current value: %d' %
+            penultimate_filters)
 
-    def get_model(self):
-        inputs = layers.Input(shape=self.input_shape)
+    filters = penultimate_filters // 24
 
-        if self.penultimate_filters % (24 * (self.filter_multiplier ** 2)) != 0:
-            raise ValueError(
-                'For NASNet-A models, the `penultimate_filters` must be a multiple '
-                'of 24 * (`filter_multiplier` ** 2). Current value: %d' %
-                self.penultimate_filters)
+    x = layers.Conv1D(
+        stem_block_filters, 3,
+        strides=2,
+        padding='valid',
+        use_bias=False,
+        name='stem_conv1',
+        kernel_initializer='he_normal'
+    )(inputs)
 
-        filters = self.penultimate_filters // 24
+    x = layers.BatchNormalization(momentum=0.9997, epsilon=1e-3, name='stem_bn1')(x)
 
-        x = layers.Conv1D(
-            self.stem_block_filters, 3,
-            strides=2,
-            padding='valid',
-            use_bias=False,
-            name='stem_conv1',
-            kernel_initializer='he_normal'
-        )(inputs)
+    p = None
+    x, p = ReductionACell(filters // (filter_multiplier ** 2), block_id='stem_1')(x, p)
+    x, p = ReductionACell(filters // filter_multiplier, block_id='stem_2')(x, p)
 
-        x = layers.BatchNormalization(momentum=0.9997, epsilon=1e-3, name='stem_bn1')(x)
+    for i in range(num_blocks):
+        x, p = NormalACell(filters, block_id='%d' % i)(x, p)
 
-        p = None
-        x, p = ReductionACell(filters // (self.filter_multiplier ** 2), block_id='stem_1')(x, p)
-        x, p = ReductionACell(filters // self.filter_multiplier, block_id='stem_2')(x, p)
+    x, p0 = ReductionACell(filters * filter_multiplier, block_id='reduce_%d' % num_blocks)(x, p)
 
-        for i in range(self.num_blocks):
-            x, p = NormalACell(filters, block_id='%d' % i)(x, p)
+    p = p0 if not skip_reduction else p
 
-        x, p0 = ReductionACell(filters * self.filter_multiplier, block_id='reduce_%d' % self.num_blocks)(x, p)
+    for i in range(num_blocks):
+        x, p = NormalACell(filters * filter_multiplier, block_id='%d' % (num_blocks + i + 1))(x, p)
 
-        p = p0 if not self.skip_reduction else p
+    x, p0 = ReductionACell(filters * filter_multiplier ** 2,
+                           block_id='reduce_%d' % (2 * num_blocks))(x, p)
 
-        for i in range(self.num_blocks):
-            x, p = NormalACell(filters * self.filter_multiplier, block_id='%d' % (self.num_blocks + i + 1))(x, p)
+    p = p0 if not skip_reduction else p
 
-        x, p0 = ReductionACell(filters * self.filter_multiplier ** 2,
-                               block_id='reduce_%d' % (2 * self.num_blocks))(x, p)
+    for i in range(num_blocks):
+        x, p = NormalACell(filters * filter_multiplier ** 2, block_id='%d' % (2 * num_blocks + i + 1))(x,
+                                                                                                       p)
 
-        p = p0 if not self.skip_reduction else p
+    x = layers.Activation('relu')(x)
 
-        for i in range(self.num_blocks):
-            x, p = NormalACell(filters * self.filter_multiplier ** 2, block_id='%d' % (2 * self.num_blocks + i + 1))(x,
-                                                                                                                     p)
+    x = layers.GlobalAveragePooling1D()(x)
+    y = layers.Dense(classes, activation=classifier_activation, name='predictions')(x)
 
-        x = layers.Activation('relu')(x)
+    model = Model(inputs, y)
 
-        x = layers.GlobalAveragePooling1D()(x)
-        y = layers.Dense(self.num_classes, activation=self.classifier_activation, name='predictions')(x)
-
-        model = Model(inputs, y)
-
-        return model
+    return model
 
 
-def __NASNet(type, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
-             classifier_activation='softmax'):
+def NASNetLarge(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                classifier_activation='softmax'):
     if input_shape is None:
         input_shape = (256 * 3, 1)
 
@@ -365,16 +348,13 @@ def __NASNet(type, include_top=True, weights='hasc', input_shape=None, pooling=N
         raise ValueError('If using `weights` as `"hasc"` with `include_top`'
                          ' as true, `classes` should be 6')
 
-    if type == 'mobile':
-        model = BaseNASNet(input_shape, 1056, 4, 32, False, 2, classes, classifier_activation)()
-    elif type == 'large':
-        model = BaseNASNet(input_shape, 4032, 6, 96, True, 2, classes, classifier_activation)()
+    model = NASNet(input_shape, 4032, 6, 96, True, 2, classes, classifier_activation)
 
     if weights is not None:
         if weights in ['hasc', "HASC"]:
-            weights = 'weights/nasnet{}/nasnet{}_hasc_weights_{}_{}.hdf5'.format(type, type,
-                                                                                 int(input_shape[0]),
-                                                                                 int(input_shape[1]))
+            weights = 'weights/nasnetlarge/nasnetlarge_hasc_weights_{}_{}.hdf5'.format(
+                int(input_shape[0]),
+                int(input_shape[1]))
 
         # hasc or weights fileで初期化
         if os.path.exists(weights):
@@ -401,15 +381,45 @@ def __NASNet(type, include_top=True, weights='hasc', input_shape=None, pooling=N
     return model
 
 
-def NASNetLarge(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
-                classifier_activation='softmax'):
-    model = __NASNet('large', include_top, weights, input_shape, pooling, classes, classifier_activation)
-    return model
-
-
 def NASNetMobile(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
                  classifier_activation='softmax'):
-    model = __NASNet('mobile', include_top, weights, input_shape, pooling, classes, classifier_activation)
+    if input_shape is None:
+        input_shape = (256 * 3, 1)
+
+    if weights in ['hasc', 'HASC'] and include_top and classes != 6:
+        raise ValueError('If using `weights` as `"hasc"` with `include_top`'
+                         ' as true, `classes` should be 6')
+
+    model = NASNet(input_shape, 1056, 4, 32, False, 2, classes, classifier_activation)
+
+    if weights is not None:
+        if weights in ['hasc', "HASC"]:
+            weights = 'weights/nasnetmobile/nasnetmobile_hasc_weights_{}_{}.hdf5'.format(
+                int(input_shape[0]),
+                int(input_shape[1]))
+
+        # hasc or weights fileで初期化
+        if os.path.exists(weights):
+            print("Load weights from {}".format(weights))
+            model.load_weights(weights)
+        else:
+            print("Not exist weights: {}".format(weights))
+
+    # topを含まないとき
+    if not include_top:
+        if pooling is None:
+            # topを削除する
+            model = Model(inputs=model.input, outputs=model.layers[-3].output)
+        elif pooling == 'avg':
+            y = layers.GlobalAveragePooling1D()(model.layers[-3].output)
+            model = Model(inputs=model.input, outputs=y)
+        elif pooling == 'max':
+            y = layers.GlobalMaxPooling1D()(model.layers[-3].output)
+            model = Model(inputs=model.input, outputs=y)
+        else:
+            print("Not exist pooling option: {}".format(pooling))
+            model = Model(inputs=model.input, outputs=model.layers[-3].output)
+
     return model
 
 

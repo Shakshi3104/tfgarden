@@ -3,7 +3,6 @@ import os
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
 
-from .base import DLModelBuilder
 
 """
 Implementation reference: https://github.com/abhoi/Keras-MnasNet/blob/master/model.py
@@ -127,55 +126,6 @@ class InvertedResBlock:
         return x
 
 
-class BaseMnasNet(DLModelBuilder):
-    def __init__(self, input_shape=None, num_classes=6, classifier_activation='softmax', alpha=1.0, depth_multiplier=1):
-        self.input_shape = input_shape
-        self.num_classes = num_classes
-        self.alpha = alpha
-        self.depth_multiplier = depth_multiplier
-        self.classifier_activation = classifier_activation
-
-    def __call__(self, *args, **kwargs):
-        model = self.get_model()
-        return model
-
-    def get_model(self):
-        inputs = layers.Input(shape=self.input_shape)
-
-        first_block_filters = _make_divisible(32 * self.alpha, 8)
-        x = ConvBlock(2, first_block_filters)(inputs)
-
-        x = SepConvBlock(16, self.alpha, 16, self.depth_multiplier)(x)
-
-        x = InvertedResBlock(kernel=3, expansion=3, stride=2, alpha=self.alpha, filters=24, block_id=1)(x)
-        x = InvertedResBlock(kernel=3, expansion=3, stride=1, alpha=self.alpha, filters=24, block_id=2)(x)
-        x = InvertedResBlock(kernel=3, expansion=3, stride=1, alpha=self.alpha, filters=24, block_id=3)(x)
-
-        x = InvertedResBlock(kernel=5, expansion=3, stride=2, alpha=self.alpha, filters=40, block_id=4)(x)
-        x = InvertedResBlock(kernel=5, expansion=3, stride=1, alpha=self.alpha, filters=40, block_id=5)(x)
-        x = InvertedResBlock(kernel=5, expansion=3, stride=1, alpha=self.alpha, filters=40, block_id=6)(x)
-
-        x = InvertedResBlock(kernel=5, expansion=6, stride=2, alpha=self.alpha, filters=80, block_id=7)(x)
-        x = InvertedResBlock(kernel=5, expansion=6, stride=1, alpha=self.alpha, filters=80, block_id=8)(x)
-        x = InvertedResBlock(kernel=5, expansion=6, stride=1, alpha=self.alpha, filters=80, block_id=9)(x)
-
-        x = InvertedResBlock(kernel=3, expansion=6, stride=1, alpha=self.alpha, filters=96, block_id=10)(x)
-        x = InvertedResBlock(kernel=3, expansion=6, stride=1, alpha=self.alpha, filters=96, block_id=11)(x)
-
-        x = InvertedResBlock(kernel=5, expansion=6, stride=2, alpha=self.alpha, filters=192, block_id=12)(x)
-        x = InvertedResBlock(kernel=5, expansion=6, stride=1, alpha=self.alpha, filters=192, block_id=13)(x)
-        x = InvertedResBlock(kernel=5, expansion=6, stride=1, alpha=self.alpha, filters=192, block_id=14)(x)
-        x = InvertedResBlock(kernel=5, expansion=6, stride=1, alpha=self.alpha, filters=192, block_id=15)(x)
-
-        x = InvertedResBlock(kernel=3, expansion=6, stride=1, alpha=self.alpha, filters=320, block_id=16)(x)
-
-        x = layers.GlobalAveragePooling1D()(x)
-        y = layers.Dense(self.num_classes, activation=self.classifier_activation, use_bias=True, name="prediction")(x)
-
-        model = Model(inputs, y)
-        return model
-
-
 def MnasNet(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax',
             alpha=1.0, depth_multiplier=1):
     if input_shape is None:
@@ -185,8 +135,39 @@ def MnasNet(include_top=True, weights='hasc', input_shape=None, pooling=None, cl
         raise ValueError('If using `weights` as `"hasc"` with `include_top`'
                          ' as true, `classes` should be 6')
 
-    # Build model
-    model = BaseMnasNet(input_shape, classes, classifier_activation, alpha, depth_multiplier)()
+    inputs = layers.Input(shape=input_shape)
+
+    first_block_filters = _make_divisible(32 * alpha, 8)
+    x = ConvBlock(2, first_block_filters)(inputs)
+
+    x = SepConvBlock(16, alpha, 16, depth_multiplier)(x)
+
+    x = InvertedResBlock(kernel=3, expansion=3, stride=2, alpha=alpha, filters=24, block_id=1)(x)
+    x = InvertedResBlock(kernel=3, expansion=3, stride=1, alpha=alpha, filters=24, block_id=2)(x)
+    x = InvertedResBlock(kernel=3, expansion=3, stride=1, alpha=alpha, filters=24, block_id=3)(x)
+
+    x = InvertedResBlock(kernel=5, expansion=3, stride=2, alpha=alpha, filters=40, block_id=4)(x)
+    x = InvertedResBlock(kernel=5, expansion=3, stride=1, alpha=alpha, filters=40, block_id=5)(x)
+    x = InvertedResBlock(kernel=5, expansion=3, stride=1, alpha=alpha, filters=40, block_id=6)(x)
+
+    x = InvertedResBlock(kernel=5, expansion=6, stride=2, alpha=alpha, filters=80, block_id=7)(x)
+    x = InvertedResBlock(kernel=5, expansion=6, stride=1, alpha=alpha, filters=80, block_id=8)(x)
+    x = InvertedResBlock(kernel=5, expansion=6, stride=1, alpha=alpha, filters=80, block_id=9)(x)
+
+    x = InvertedResBlock(kernel=3, expansion=6, stride=1, alpha=alpha, filters=96, block_id=10)(x)
+    x = InvertedResBlock(kernel=3, expansion=6, stride=1, alpha=alpha, filters=96, block_id=11)(x)
+
+    x = InvertedResBlock(kernel=5, expansion=6, stride=2, alpha=alpha, filters=192, block_id=12)(x)
+    x = InvertedResBlock(kernel=5, expansion=6, stride=1, alpha=alpha, filters=192, block_id=13)(x)
+    x = InvertedResBlock(kernel=5, expansion=6, stride=1, alpha=alpha, filters=192, block_id=14)(x)
+    x = InvertedResBlock(kernel=5, expansion=6, stride=1, alpha=alpha, filters=192, block_id=15)(x)
+
+    x = InvertedResBlock(kernel=3, expansion=6, stride=1, alpha=alpha, filters=320, block_id=16)(x)
+
+    x = layers.GlobalAveragePooling1D()(x)
+    y = layers.Dense(classes, activation=classifier_activation, use_bias=True, name="prediction")(x)
+
+    model = Model(inputs, y)
 
     if weights is not None:
         if weights in ['hasc', "HASC"]:

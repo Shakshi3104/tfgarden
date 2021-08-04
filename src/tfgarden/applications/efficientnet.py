@@ -1,13 +1,10 @@
-import tensorflow as tf
-from tensorflow.keras.layers import Conv1D, MaxPool1D, BatchNormalization, ReLU, Dense, Flatten, AvgPool1D, Add, Input
+from tensorflow.keras.layers import Conv1D, BatchNormalization, Dense, Input
 from tensorflow.keras.layers import GlobalAveragePooling1D, GlobalMaxPooling1D, Activation, SeparableConv1D, Reshape
 from tensorflow.keras.layers import multiply, add, Dropout
 from tensorflow.keras.models import Model
 
 import os
 import math
-
-from .base import DLModelBuilder
 
 
 class Block:
@@ -97,55 +94,39 @@ class Block:
 # use SeparableConv1D because DepthwiseConv1D is not implemented in tensorflow.
 # use 'relu' for activation function instead of "swish"
 # use 'he_normal' for kernel initializer
-class BaseEfficientNet(DLModelBuilder):
-    def __init__(self, width_coefficient, depth_coefficient, default_size, dropout_rate=0.2, drop_connect_rate=0.2,
-                 depth_divisor=8, activation='swish', input_shape=(256 * 3, 1), num_classes=6,
-                 classifier_activation='softmax'):
-        super(BaseEfficientNet, self).__init__(None, None, "he_normal", "same", input_shape, num_classes)
-        self.width_coefficient = width_coefficient
-        self.depth_coefficient = depth_coefficient
-        self.default_size = default_size
-        self.dropout_rate = dropout_rate
-        self.drop_connect_rate = drop_connect_rate
-        self.depth_divisor = depth_divisor
-        self.activation = activation
-        self.classifier_activation = classifier_activation
-        self.model_name = "EfficientNet"
+def __EfficientNet(width_coefficient, depth_coefficient, dropout_rate=0.2, drop_connect_rate=0.2,
+                   depth_divisor=8, activation='swish', blocks_args=None,
+                   input_shape=None, classes=6, classifier_activation='softmax'):
+    def round_filters(filters, divisor=depth_divisor):
+        """Round number of filters based on depth multiplier."""
+        filters *= width_coefficient
+        new_filters = max(divisor, int(filters + divisor / 2) // divisor * divisor)
+        # Make sure that round down does not go down by more than 10%.
+        if new_filters < 0.9 * filters:
+            new_filters += divisor
+        return int(new_filters)
 
-    def __call__(self, *args, **kwargs):
-        model = self.get_model()
-        return model
+    def round_repeats(repeats):
+        """Round number of repeats based on depth multiplier."""
+        return int(math.ceil(depth_coefficient * repeats))
 
-    def get_model(self):
-        inputs = Input(shape=self.input_shape)
+    inputs = Input(shape=input_shape)
 
-        def round_filters(filters, divisor=self.depth_divisor):
-            """Round number of filters based on depth multiplier."""
-            filters *= self.width_coefficient
-            new_filters = max(divisor, int(filters + divisor / 2) // divisor * divisor)
-            # Make sure that round down does not go down by more than 10%.
-            if new_filters < 0.9 * filters:
-                new_filters += divisor
-            return int(new_filters)
+    # Build stem
+    x = inputs
 
-        def round_repeats(repeats):
-            """Round number of repeats based on depth multiplier."""
-            return int(math.ceil(self.depth_coefficient * repeats))
+    x = Conv1D(round_filters(32),
+               3,
+               strides=2,
+               padding="same",
+               use_bias=False,
+               kernel_initializer="he_normal",
+               name='stem_conv')(x)
+    x = BatchNormalization(name='stem_bn')(x)
+    x = Activation(activation, name='stem_activation')(x)
 
-        # Build stem
-        x = inputs
-
-        x = Conv1D(round_filters(32),
-                   3,
-                   strides=2,
-                   padding=self.padding,
-                   use_bias=False,
-                   kernel_initializer=self.kernel_initializer,
-                   name='stem_conv')(x)
-        x = BatchNormalization(name='stem_bn')(x)
-        x = Activation(self.activation, name='stem_activation')(x)
-
-        # Build blocks
+    # Build blocks
+    if blocks_args is None:
         blocks_args = [{
             'kernel_size': 3,
             'repeats': 1,
@@ -211,50 +192,50 @@ class BaseEfficientNet(DLModelBuilder):
             'se_ratio': 0.25
         }]
 
-        b = 0
+    b = 0
 
-        blocks = [round_repeats(args['repeats']) for args in blocks_args]
-        blocks = float(sum(blocks))
+    blocks = [round_repeats(args['repeats']) for args in blocks_args]
+    blocks = float(sum(blocks))
 
-        # blocks = float(sum(round_repeats(args['repeats']) for args in blocks_args))
-        for (i, args) in enumerate(blocks_args):
-            assert args['repeats'] > 0
-            # Update block input and output filters based on depth multiplier.
-            args['filters_in'] = round_filters(args['filters_in'])
-            args['filters_out'] = round_filters(args['filters_out'])
+    # blocks = float(sum(round_repeats(args['repeats']) for args in blocks_args))
+    for (i, args) in enumerate(blocks_args):
+        assert args['repeats'] > 0
+        # Update block input and output filters based on depth multiplier.
+        args['filters_in'] = round_filters(args['filters_in'])
+        args['filters_out'] = round_filters(args['filters_out'])
 
-            for j in range(round_repeats(args.pop('repeats'))):
-                # The first block needs to take care of stride and filter size increase.
-                if j > 0:
-                    args['strides'] = 1
-                    args['filters_in'] = args['filters_out']
+        for j in range(round_repeats(args.pop('repeats'))):
+            # The first block needs to take care of stride and filter size increase.
+            if j > 0:
+                args['strides'] = 1
+                args['filters_in'] = args['filters_out']
 
-                x = Block(self.activation, self.drop_connect_rate * b / blocks,
-                          name='block{}{}_'.format(i + 1, chr(j + 97)), **args)(x)
+            x = Block(activation, drop_connect_rate * b / blocks,
+                      name='block{}{}_'.format(i + 1, chr(j + 97)), **args)(x)
 
-                b += 1
+            b += 1
 
-        # Build top
-        x = Conv1D(round_filters(1280),
-                   1,
-                   padding='same',
-                   use_bias=False,
-                   kernel_initializer='he_normal',
-                   name='top_conv')(x)
-        x = BatchNormalization(name='top_bn')(x)
-        x = Activation(self.activation, name='top_activation')(x)
+    # Build top
+    x = Conv1D(round_filters(1280),
+               1,
+               padding='same',
+               use_bias=False,
+               kernel_initializer='he_normal',
+               name='top_conv')(x)
+    x = BatchNormalization(name='top_bn')(x)
+    x = Activation(activation, name='top_activation')(x)
 
-        x = GlobalAveragePooling1D(name='avg_pool')(x)
-        x = Dropout(self.dropout_rate)(x)
-        x = Dense(self.num_classes, activation=self.classifier_activation, name='predictioins')(x)
+    x = GlobalAveragePooling1D(name='avg_pool')(x)
+    x = Dropout(dropout_rate)(x)
+    x = Dense(classes, activation=classifier_activation, name='predictioins')(x)
 
-        # Create model
-        model = Model(inputs=inputs, outputs=x)
+    # Create model
+    model = Model(inputs=inputs, outputs=x)
+    return model
 
-        return model
 
-
-def __EfficientNet(b, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
+def EfficientNet(b, include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                 classifier_activation='softmax'):
     if input_shape is None:
         input_shape = (256 * 3, 1)
 
@@ -263,24 +244,29 @@ def __EfficientNet(b, include_top=True, weights='hasc', input_shape=None, poolin
                          ' as true, `classes` should be 6')
 
     if b == 0:
-        efficient = BaseEfficientNet(1.0, 1.0, 224, 0.2, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        model = __EfficientNet(1.0, 1.0, 0.2, input_shape=input_shape, activation='relu', classes=classes,
+                               classifier_activation=classifier_activation)
     elif b == 1:
-        efficient = BaseEfficientNet(1.0, 1.1, 240, 0.2, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        model = __EfficientNet(1.0, 1.1, 0.2, input_shape=input_shape, activation='relu', classes=classes,
+                               classifier_activation=classifier_activation)
     elif b == 2:
-        efficient = BaseEfficientNet(1.1, 1.2, 260, 0.3, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        model = __EfficientNet(1.1, 1.2, 0.3, input_shape=input_shape, activation='relu', classes=classes,
+                               classifier_activation=classifier_activation)
     elif b == 3:
-        efficient = BaseEfficientNet(1.2, 1.4, 300, 0.3, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        model = __EfficientNet(1.2, 1.4, 0.3, input_shape=input_shape, activation='relu', classes=classes,
+                               classifier_activation=classifier_activation)
     elif b == 4:
-        efficient = BaseEfficientNet(1.4, 1.8, 380, 0.4, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        model = __EfficientNet(1.4, 1.8, 0.4, input_shape=input_shape, activation='relu', classes=classes,
+                               classifier_activation=classifier_activation)
     elif b == 5:
-        efficient = BaseEfficientNet(1.6, 2.2, 456, 0.4, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        model = __EfficientNet(1.6, 2.2, 0.4, input_shape=input_shape, activation='relu', classes=classes,
+                               classifier_activation=classifier_activation)
     elif b == 6:
-        efficient = BaseEfficientNet(1.8, 2.6, 528, 0.5, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
+        model = __EfficientNet(1.8, 2.6, 0.5, input_shape=input_shape, activation='relu', classes=classes,
+                               classifier_activation=classifier_activation)
     elif b == 7:
-        efficient = BaseEfficientNet(2.0, 3.1, 600, 0.5, input_shape=input_shape, activation='relu', num_classes=classes, classifier_activation=classifier_activation)
-
-    # モデルをビルドする
-    model = efficient()
+        model = __EfficientNet(2.0, 3.1, 0.5, input_shape=input_shape, activation='relu', classes=classes,
+                               classifier_activation=classifier_activation)
 
     if weights is not None:
         if weights in ['hasc', "HASC"]:
@@ -313,43 +299,51 @@ def __EfficientNet(b, include_top=True, weights='hasc', input_shape=None, poolin
     return model
 
 
-def EfficientNetB0(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    model = __EfficientNet(0, include_top, weights, input_shape, pooling, classes, classifier_activation)
+def EfficientNetB0(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                   classifier_activation='softmax'):
+    model = EfficientNet(0, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
-def EfficientNetB1(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    model = __EfficientNet(1, include_top, weights, input_shape, pooling, classes, classifier_activation)
+def EfficientNetB1(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                   classifier_activation='softmax'):
+    model = EfficientNet(1, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
-def EfficientNetB2(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    model = __EfficientNet(2, include_top, weights, input_shape, pooling, classes, classifier_activation)
+def EfficientNetB2(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                   classifier_activation='softmax'):
+    model = EfficientNet(2, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
-def EfficientNetB3(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    model = __EfficientNet(3, include_top, weights, input_shape, pooling, classes, classifier_activation)
+def EfficientNetB3(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                   classifier_activation='softmax'):
+    model = EfficientNet(3, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
-def EfficientNetB4(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    model = __EfficientNet(4, include_top, weights, input_shape, pooling, classes, classifier_activation)
+def EfficientNetB4(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                   classifier_activation='softmax'):
+    model = EfficientNet(4, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
-def EfficientNetB5(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    model = __EfficientNet(5, include_top, weights, input_shape, pooling, classes, classifier_activation)
+def EfficientNetB5(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                   classifier_activation='softmax'):
+    model = EfficientNet(5, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
-def EfficientNetB6(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    model = __EfficientNet(6, include_top, weights, input_shape, pooling, classes, classifier_activation)
+def EfficientNetB6(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                   classifier_activation='softmax'):
+    model = EfficientNet(6, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
-def EfficientNetB7(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6, classifier_activation='softmax'):
-    model = __EfficientNet(7, include_top, weights, input_shape, pooling, classes, classifier_activation)
+def EfficientNetB7(include_top=True, weights='hasc', input_shape=None, pooling=None, classes=6,
+                   classifier_activation='softmax'):
+    model = EfficientNet(7, include_top, weights, input_shape, pooling, classes, classifier_activation)
     return model
 
 
@@ -358,9 +352,3 @@ if __name__ == '__main__':
                            weights=None,
                            pooling=None)
     print(model.summary())
-    
-    from tensorflow.keras.utils import plot_model
-    plot_model(model, to_file="../weights/efficientnetb0.pdf", show_shapes=True)
-    
-
-
