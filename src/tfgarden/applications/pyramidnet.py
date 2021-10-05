@@ -89,7 +89,7 @@ class Bottleneck:
         x = tf.keras.layers.BatchNormalization(name=self.block_name + "_bn_4")(x)
 
         if self.downsample is not None:
-            identity = self.downsample(x)
+            identity = self.downsample(identity)
 
         ch_x = x.shape[-1]
         ch_identity = identity.shape[-1]
@@ -260,10 +260,10 @@ def PyramidNet152(include_top=True, weights='hasc', input_shape=None, pooling=No
 
 
 if __name__ == '__main__':
-    model = PyramidNet18(
+    model = PyramidNet50(
                          include_top=True,
                          weights=None,
-                         input_shape=None,
+                         input_shape=(256, 3),
                          pooling='avg',
                          alpha=48)
     print(model.summary())
