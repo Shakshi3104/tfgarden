@@ -25,7 +25,8 @@ The models implemented here can also be used as a source domain for sensor-based
 - [`efficientnet_lite`](docs/docs/reference/efficientnet_lite.md#efficientnet-lite) module : EfficientNet-Lite models for Keras.
 
 ## Performance
-Under construction...
+
+Please refer to [tfmars](https://github.com/Shakshi3104/tfmars#performance)
 
 ## Install
 
