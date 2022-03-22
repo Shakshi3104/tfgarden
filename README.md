@@ -7,6 +7,7 @@ The models implemented here can also be used as a source domain for sensor-based
 
 - [`densenet`](docs/docs/reference/densenet.md#densenet) module: DenseNet models for Keras.
 - [`efficientnet`](docs/docs/reference/efficientnet.md#efficientnet) module : EfficientNet models for Keras.
+- `efficientnet_v2` module: EfficientNetV2 models for Keras.
 - [`inception_resnet_v2`](docs/docs/reference/inception_resnet_v2.md#inception-resnet-v2) module: Inception-ResNet V2 model for Keras.
 - [`inception_v3`](docs/docs/reference/inception_v3.md#inception-v3) module: Inception V3 model for Keras.
 - [`mobilenet`](docs/docs/reference/mobilenet.md#mobilenet) module : MobileNet v1 models for Keras.
