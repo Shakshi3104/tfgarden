@@ -1,6 +1,7 @@
 from .densenet import *
 from .efficientnet import *
 from .efficientnet_lite import *
+from .efficientnet_v2 import *
 from .inception_resnet_v2 import *
 from .inception_v3 import *
 from .mnasnet import *
@@ -22,6 +23,8 @@ __all__ = [
     "EfficientNetB0", "EfficientNetB1", "EfficientNetB2", "EfficientNetB3", "EfficientNetB4", "EfficientNetB5",
     "EfficientNetB6", "EfficientNetB7",
     "EfficientNet_lite0", "EfficientNet_lite1", "EfficientNet_lite2", "EfficientNet_lite3", "EfficientNet_lite4",
+    "EfficientNetV2B0", "EfficientNetV2B1", "EfficientNetV2B2", "EfficientNetV2B3", 
+    "EfficientNetV2S", "EfficientNetV2M", "EfficientNetV2L",
     "InceptionResNetV2",
     "MnasNet",
     "MobileNet",
